@@ -1,0 +1,43 @@
+﻿  main.cpp
+D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Core.h(29,24): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'main.cpp')
+  
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,33): warning C4305: 'argument': truncation from 'double' to 'coordinate_type'
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,33): warning C4305:         with
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,33): warning C4305:         [
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,33): warning C4305:             coordinate_type=float
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,33): warning C4305:         ]
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,27): warning C4305: 'argument': truncation from 'double' to 'coordinate_type'
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,27): warning C4305:         with
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,27): warning C4305:         [
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,27): warning C4305:             coordinate_type=float
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,27): warning C4305:         ]
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,20): warning C4305: 'argument': truncation from 'double' to 'coordinate_type'
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,20): warning C4305:         with
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,20): warning C4305:         [
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,20): warning C4305:             coordinate_type=float
+D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,20): warning C4305:         ]
+D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(424,16): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'main.cpp')
+  D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(424,16):
+  the template instantiation context (the oldest one first) is
+  	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(378,13):
+  	see reference to class template instantiation 'jmk::VertexDCEL<float,2>' being compiled
+  	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(18,22):
+  	see reference to class template instantiation 'jmk::Vector<float,2>' being compiled
+  	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(399,2):
+  	while compiling class template member function 'coordinate_type jmk::Vector<coordinate_type,2>::operator [](const unsigned int) const'
+          with
+          [
+              coordinate_type=float
+          ]
+  		D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(380,4):
+  		see the first reference to 'jmk::Vector<float,2>::operator []' in 'jmk::Vertex2DSortTBLR::operator ()'
+  	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(421,2):
+  	while compiling class template member function 'float jmk::Vector<float,2>::magnitude(void) const'
+  		D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(433,12):
+  		see the first reference to 'jmk::Vector<float,2>::magnitude' in 'jmk::Vector<float,2>::normalize'
+  		D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\Line.h(43,17):
+  		see the first reference to 'jmk::Vector<float,2>::normalize' in 'jmk::Line2d::Line2d'
+  
+  Computational Geometry.vcxproj -> D:\Studies\C++\Computational Geometry\x64\Debug\Computational Geometry.exe
