@@ -96,6 +96,202 @@ int main()
 			<< edge.p2[X] << ", " << edge.p2[Y] << ")\n";
 	}
 
+	cout << "\n-----DCEL Vertex Creation -----\n";
+
+	// Vertex Creation:
+
+	// Step 1: Create a 2D and 3D point using the Vector class
+	Vector<float, 2> point(1.0f, 2.0f); // Coordinates (1, 2)
+	Vector<float, 3> pointTwo(1.0f, 2.0f, 3.0f); // Coordinates (1, 2, 3)
+
+	// Step 2: Create a VertexDCEL object using the point
+	VertexDCEL<float, 2> vertex(point);
+	VertexDCEL<float, 3> vertexTwo(pointTwo);
+
+	// Step 3: Print the vertex coordinates
+	vertex.print();  // Expected output: (1, 2)
+	vertexTwo.print();  // Expected output: (1, 2, 3)
+
+	cout << "\n-----DCEL Edge Creation -----\n";
+
+	// Step 1: Create two 3D points using the Vector class
+	Vector<float, 3> point1(1.0f, 2.0f, 3.0f);  // Coordinates (1, 2, 3)
+	Vector<float, 3> point2(4.0f, 5.0f, 6.0f);  // Coordinates (4, 5, 6)
+
+	// Step 2: Create two VertexDCEL objects using the points
+	VertexDCEL<float, 3> vertex1(point1);
+	VertexDCEL<float, 3> vertex2(point2);
+
+	// Step 3: Create two EdgeDCEL objects
+	EdgeDCEL<float, 3> edge1(&vertex1);  // Edge with vertex1 as origin
+	EdgeDCEL<float, 3> edge2(&vertex2);  // Edge with vertex2 as origin
+
+	// Step 4: Set the twin relationship between the two edges
+	edge1.twin = &edge2;
+	edge2.twin = &edge1;
+
+	// Step 5: Set next and prev pointers (this is just for the sake of simulation)
+	edge1.next = &edge2;
+	edge1.prev = &edge2;
+	edge2.next = &edge1;
+	edge2.prev = &edge1;
+
+	// Step 6: Print the edge details for debugging
+	edge1.print();  // Print details of edge1
+	std::cout << "----\n";
+	edge2.print();  // Print details of edge2
+
+
+
+
+	cout << "\n-----DCEL Face Creation (Only Outer)-----\n";
+
+	// Create 3 vertices (forming a triangle)
+	Vector<float, 2> point_1(0.0f, 0.0f);
+	Vector<float, 2> point_2(1.0f, 0.0f);
+	Vector<float, 2> point_3(0.5f, 1.0f);
+
+	VertexDCEL<float, 2> vertex_1(point_1);
+	VertexDCEL<float, 2> vertex_2(point_2);
+	VertexDCEL<float, 2> vertex_3(point_3);
+
+	// Create 3 edges to form a triangle
+	EdgeDCEL<float, 2> edge_1(&vertex_1);
+	EdgeDCEL<float, 2> edge_2(&vertex_2);
+	EdgeDCEL<float, 2> edge_3(&vertex_3);
+
+	// Link edges together in a counter-clockwise direction
+	edge_1.next = &edge_2;
+	edge_2.prev = &edge_1;
+
+	edge_2.next = &edge_3;
+	edge_3.prev = &edge_2;
+
+	edge_3.next = &edge_1;
+	edge_1.prev = &edge_3;
+
+	// Create the face and assign edge_1 as the outer boundary edge
+	FaceDCEL<float, 2> face;
+	face.outer = &edge_1;
+
+	// Simulate printing the face vertices by following the outer edges
+	std::cout << "Face Vertices (using print()):\n";
+	face.print();  // Should print the vertices of the triangle
+
+	// Simulate getting the edge list of the face
+	std::cout << "Edge List (using getEdgeList()):\n";
+	auto edge_new_list = face.getEdgeList();
+	for (auto& edge : edge_new_list) {
+		edge->print();  // Print each edge in the edge list
+	}
+
+	// Simulate getting the points (vertices) of the face
+	std::cout << "Vertex Points (using getPoints()):\n";
+	auto point_list = face.getPoints();
+	for (auto& point : point_list) {
+		std::cout << "(" << point[X] << "," << point[Y] << ")\n";  // Print each point
+	}
+
+
+
+	cout << "\n-----DCEL Face Creation (Outer and Inner)----\n";
+
+	// Outer face (Square)
+	Vector<float, 2> outer_point1(0.0f, 0.0f);
+	Vector<float, 2> outer_point2(4.0f, 0.0f);
+	Vector<float, 2> outer_point3(4.0f, 4.0f);
+	Vector<float, 2> outer_point4(0.0f, 4.0f);
+
+	VertexDCEL<float, 2> outer_vertex1(outer_point1);
+	VertexDCEL<float, 2> outer_vertex2(outer_point2);
+	VertexDCEL<float, 2> outer_vertex3(outer_point3);
+	VertexDCEL<float, 2> outer_vertex4(outer_point4);
+
+	EdgeDCEL<float, 2> outer_edge1(&outer_vertex1);
+	EdgeDCEL<float, 2> outer_edge2(&outer_vertex2);
+	EdgeDCEL<float, 2> outer_edge3(&outer_vertex3);
+	EdgeDCEL<float, 2> outer_edge4(&outer_vertex4);
+
+	// Linking outer edges (counter-clockwise)
+	outer_edge1.next = &outer_edge2;
+	outer_edge2.prev = &outer_edge1;
+	outer_edge2.next = &outer_edge3;
+	outer_edge3.prev = &outer_edge2;
+	outer_edge3.next = &outer_edge4;
+	outer_edge4.prev = &outer_edge3;
+	outer_edge4.next = &outer_edge1;
+	outer_edge1.prev = &outer_edge4;
+
+	// Inner face (Triangle hole)
+	Vector<float, 2> inner_point1(1.0f, 1.0f);
+	Vector<float, 2> inner_point2(2.5f, 1.0f);
+	Vector<float, 2> inner_point3(1.5f, 2.5f);
+
+	VertexDCEL<float, 2> inner_vertex1(inner_point1);
+	VertexDCEL<float, 2> inner_vertex2(inner_point2);
+	VertexDCEL<float, 2> inner_vertex3(inner_point3);
+
+	EdgeDCEL<float, 2> inner_edge1(&inner_vertex1);
+	EdgeDCEL<float, 2> inner_edge2(&inner_vertex2);
+	EdgeDCEL<float, 2> inner_edge3(&inner_vertex3);
+
+	// Linking inner edges (counter-clockwise)
+	inner_edge1.next = &inner_edge2;
+	inner_edge2.prev = &inner_edge1;
+	inner_edge2.next = &inner_edge3;
+	inner_edge3.prev = &inner_edge2;
+	inner_edge3.next = &inner_edge1;
+	inner_edge1.prev = &inner_edge3;
+
+	// Create FaceDCEL for the outer face and add the inner face (hole)
+	FaceDCEL<float, 2> newface;
+	newface.outer = &outer_edge1;
+	newface.inner.push_back(&inner_edge1);  // Adding the inner face
+
+	// Print the vertices of the outer face
+	std::cout << "Outer Face Vertices:\n";
+	newface.print();
+
+	// Print the vertices of the inner face (hole)
+	std::cout << "\nInner Face (Hole) Vertices:\n";
+	for (auto inner_edge : newface.inner) 
+	{
+		auto inner_ptr = inner_edge;
+		inner_ptr->origin->print();
+		auto next_ptr = inner_ptr->next;
+		while (next_ptr != inner_ptr)
+		{
+			next_ptr->origin->print();
+			next_ptr = next_ptr->next;
+		}
+	}
+
+	// Get inner edge list and print it
+	std::vector<EdgeDCEL<float, 2>*> innerEdges = newface.getInnerEdgeList();
+	std::cout << "Inner edges:\n";
+	printEdges(innerEdges);
+
+	// Get inner vertices list and print it
+	std::vector<VertexDCEL<float, 2>*> innerVertices = newface.getInnerPoints();
+	std::cout << "\nInner vertices:\n";
+	printVertices(innerVertices);
+
+	// Get and print edge list for the outer face
+	std::cout << "\nOuter Face Edge List:\n";
+	auto outer_edge_list = newface.getEdgeList();
+	for (auto& edge : outer_edge_list) 
+	{
+		edge->print();
+	}
+
+	// Get and print the points for the outer face
+	std::cout << "\nOuter Face Points:\n";
+	auto outer_point_list = newface.getPoints();
+	for (auto& point : outer_point_list) 
+	{
+		std::cout << "(" << point[X] << "," << point[Y] << ")\n";
+	}
+
 	return 0;
 	
 }

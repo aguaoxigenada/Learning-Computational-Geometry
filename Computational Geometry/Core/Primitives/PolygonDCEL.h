@@ -16,17 +16,32 @@ namespace jmk {
 
 	// VertexDCEL structure representing a vertex in the Doubly Connected Edge List (DCEL)
 	template<class type = float, size_t dim = DIM3 >
-	struct VertexDCEL {
+	struct VertexDCEL
+	{
 		Vector<float, dim> point;                                // Coordinates of the vertex
 		EdgeDCEL<type, dim>* incident_edge = nullptr;            // Pointer to an incident edge
+																 // An incident edge is an edge connected to a particular vertex
 
 		// Constructor to initialize the vertex with a given point
 		VertexDCEL(Vector<type, dim>& _point) : point(_point) {}
 
-		// Print function for debugging, outputs the coordinates of the vertex
-		void print() {
-			std::cout << "(" << point[X] << "," << point[Y] << ") \n";
+		
+		void print()
+		{
+			if constexpr (dim == 2) {
+				// If dimension is 2, print only X and Y
+				std::cout << "Vertex Point: (" << point[X] << "," << point[Y] << ") \n";
+			}
+			else if constexpr (dim == 3) {
+				// If dimension is 3, print X, Y, and Z
+				std::cout << "Vertex Point: (" << point[X] << "," << point[Y] << "," << point[Z] << ") \n";
+			}
+			else {
+				// For any other dimension, handle it accordingly (optional)
+				std::cout << "Unsupported dimension\n";
+			}
 		}
+
 	};
 
 	// EdgeDCEL structure representing an edge in the DCEL
@@ -54,19 +69,26 @@ namespace jmk {
 
 		// Print function for debugging, outputs details about the edge
 		void print() {
+			std::cout << "Edge ID: " << id << "\n";
 			std::cout << "This point pointer: " << this << "\n";
-			std::cout << "Origin: "; this->origin->print();
-			std::cout << "Twin pointer: " << this->twin << "\n";
-			std::cout << "Next pointer: " << this->next << "\n";
-			std::cout << "Prev pointer: " << this->prev << "\n";
+			std::cout << "Origin: ";
+			if (origin != nullptr) origin->print();
+			else std::cout << "NULL\n";
+			std::cout << "Twin pointer: " << twin << "\n";
+			std::cout << "Next pointer: " << next << "\n"; 
+			std::cout << "Prev pointer: " << prev << "\n";
 		}
+
 	};
 
 	// FaceDCEL structure representing a face in the DCEL
 	template<class type = float, size_t dim = DIM3 >
-	struct FaceDCEL {
+	struct FaceDCEL
+	{
 		EdgeDCEL<type, dim>* outer = nullptr;                 // Pointer to one outer edge (boundary)
 		std::vector<EdgeDCEL<type, dim>*> inner;              // Inner edges representing holes in the face
+		// es un vector porque podrias tener varios huecos.
+		
 
 		// Print function to print the vertices of the face by following the outer edges
 		void print() {
@@ -83,7 +105,8 @@ namespace jmk {
 		}
 
 		// Returns a list of edges forming the boundary of the face
-		std::vector<EdgeDCEL<type, dim>*> getEdgeList() {
+		std::vector<EdgeDCEL<type, dim>*> getEdgeList()
+		{
 			std::vector<EdgeDCEL<type, dim>*> edge_list;
 			if (outer) {
 				auto edge_ptr = outer;
@@ -98,8 +121,28 @@ namespace jmk {
 			return edge_list;
 		}
 
+		// Returns a list of edges forming the boundary of the inner face
+		std::vector<EdgeDCEL<type, dim>*> getInnerEdgeList()
+		{
+			std::vector<EdgeDCEL<type, dim>*> innerEdges;
+
+			if (!inner.empty()) {
+				EdgeDCEL<type, dim>* startEdge = inner.front();
+				EdgeDCEL<type, dim>* currentEdge = startEdge;
+
+				do {
+					innerEdges.push_back(currentEdge);
+					currentEdge = currentEdge->next;
+				} while (currentEdge != startEdge);
+			}
+
+			return innerEdges;
+		}
+
+
 		// Returns a list of points (vertices) defining the boundary of the face
-		std::vector<Vector<float, dim>> getPoints() {
+		std::vector<Vector<float, dim>> getPoints()
+			{
 			std::vector<Vector<float, dim>> point_list;
 			if (outer) {
 				auto edge_ptr = outer;
@@ -112,7 +155,52 @@ namespace jmk {
 			}
 			return point_list;
 		}
+
+		// Method to get the list of vertices for the inner face (hole)
+		std::vector<VertexDCEL<type, dim>*> getInnerPoints() {
+			std::vector<VertexDCEL<type, dim>*> innerVertices;
+
+			// Check if there are any inner edges
+			if (!inner.empty()) {
+				EdgeDCEL<type, dim>* startEdge = inner.front();
+				EdgeDCEL<type, dim>* currentEdge = startEdge;
+
+				// Traverse the inner edges and collect vertices
+				do {
+					innerVertices.push_back(currentEdge->origin);
+					currentEdge = currentEdge->next;
+				} while (currentEdge != startEdge);  // Stop when we loop back to the starting edge
+			}
+
+			return innerVertices;
+		}
 	};
+
+	// Function to print coordinates of vertices
+	template <typename type, size_t dim>
+	void printVertices(const std::vector<VertexDCEL<type, dim>*>& vertices) {
+		for (const auto& vertex : vertices) {
+			std::cout << "(";
+			for (size_t i = 0; i < dim; ++i) {
+				std::cout << vertex->point[i];
+				if (i < dim - 1) std::cout << ", ";
+			}
+			std::cout << ")\n";
+		}
+	}
+
+	// Function to print edges (just print the origin vertices for simplicity)
+	template <typename type, size_t dim>
+	void printEdges(const std::vector<EdgeDCEL<type, dim>*>& edges) {
+		for (const auto& edge : edges) {
+			std::cout << "Edge from (";
+			for (size_t i = 0; i < dim; ++i) {
+				std::cout << edge->origin->point[i];
+				if (i < dim - 1) std::cout << ", ";
+			}
+			std::cout << ")\n";
+		}
+	}
 
 	// PolygonDCEL class representing a polygon as a DCEL structure
 	template<class type = float, size_t dim = DIM3 >
