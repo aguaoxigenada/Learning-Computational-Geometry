@@ -89,10 +89,12 @@ namespace jmk {
 		std::vector<EdgeDCEL<type, dim>*> inner;              // Inner edges representing holes in the face
 		// es un vector porque podrias tener varios huecos.
 		
-
+	
 		// Print function to print the vertices of the face by following the outer edges
-		void print() {
+		void print()
+		{
 			if (outer) {
+				std::cout << "Outer Vertex Lists:\n";
 				auto edge_ptr = outer;
 				auto next_ptr = outer->next;
 
@@ -101,6 +103,52 @@ namespace jmk {
 					next_ptr->origin->print();
 					next_ptr = next_ptr->next;
 				}
+			}
+		}
+
+		// Print function to print the edge details of the face.
+		void printEdgeDetails()
+		{
+			if (outer)
+			{
+				std::cout << "Outer Edge Lists:\n";
+				auto edge_ptr = outer;
+				auto next_ptr = outer->next;
+
+				edge_ptr->print();  // Print the first edge details
+			
+				while (next_ptr != edge_ptr) {
+					next_ptr->print();
+					next_ptr = next_ptr->next;
+				}
+			}
+
+			// Print inner edges (holes)
+			for (size_t holeIndex = 0; holeIndex < inner.size(); ++holeIndex) {
+				std::cout << "Inner Hole " << holeIndex + 1 << " Edge Vertices:\n";
+				EdgeDCEL<type, dim>* startEdge = inner[holeIndex];
+				EdgeDCEL<type, dim>* currentEdge = startEdge;
+
+				// Collect and print all edges in this hole
+				do {
+					currentEdge->print(); // Print edge details
+					currentEdge = currentEdge->next;
+				} while (currentEdge != startEdge);  // Stop when we loop back to the starting edge
+			}
+		}
+
+		void printInner()  //borrar
+		{
+			std::cout << "Inner Edge Lists:\n";
+			for (EdgeDCEL<type, dim>* startEdge : inner) {
+				EdgeDCEL<type, dim>* currentEdge = startEdge;
+				std::cout << "Hole starting with Edge ID: " << currentEdge->id << "\n";
+
+				// Collect and print all edges in this loop
+				do {
+					currentEdge->print(); // Print edge details
+					currentEdge = currentEdge->next;
+				} while (currentEdge != startEdge);  // Stop when we loop back to the starting edge
 			}
 		}
 
@@ -126,10 +174,11 @@ namespace jmk {
 		{
 			std::vector<EdgeDCEL<type, dim>*> innerEdges;
 
-			if (!inner.empty()) {
-				EdgeDCEL<type, dim>* startEdge = inner.front();
+			// Iterate through each inner boundary (each hole)
+			for (EdgeDCEL<type, dim>* startEdge : inner) {
 				EdgeDCEL<type, dim>* currentEdge = startEdge;
 
+				// Collect all edges in this loop
 				do {
 					innerEdges.push_back(currentEdge);
 					currentEdge = currentEdge->next;
@@ -156,16 +205,16 @@ namespace jmk {
 			return point_list;
 		}
 
-		// Method to get the list of vertices for the inner face (hole)
+
+		// Method to get the list of vertices for all inner faces (holes)
 		std::vector<VertexDCEL<type, dim>*> getInnerPoints() {
 			std::vector<VertexDCEL<type, dim>*> innerVertices;
 
-			// Check if there are any inner edges
-			if (!inner.empty()) {
-				EdgeDCEL<type, dim>* startEdge = inner.front();
+			// Iterate through each inner boundary (each hole)
+			for (EdgeDCEL<type, dim>* startEdge : inner) {
 				EdgeDCEL<type, dim>* currentEdge = startEdge;
 
-				// Traverse the inner edges and collect vertices
+				// Traverse the edges of this inner loop and collect vertices
 				do {
 					innerVertices.push_back(currentEdge->origin);
 					currentEdge = currentEdge->next;
@@ -175,6 +224,44 @@ namespace jmk {
 			return innerVertices;
 		}
 	};
+
+	// Function to print the edges of each hole
+	inline void printInnerEdges(FaceDCEL<float, 2>& face) {
+		std::cout << "Inner edges (by hole):" << std::endl;
+
+		int holeIndex = 1;  // To keep track of hole number
+		for (EdgeDCEL<float, 2>*startEdge : face.inner) {
+			std::cout << "Hole " << holeIndex << ":" << std::endl;
+			EdgeDCEL<float, 2>* currentEdge = startEdge;
+
+			do {
+				std::cout << "  Edge from vertex (" << currentEdge->origin->point[0]
+					<< ", " << currentEdge->origin->point[1] << ")" << std::endl;
+				currentEdge = currentEdge->next;
+			} while (currentEdge != startEdge);  // Stop when we loop back to the starting edge
+
+			holeIndex++;
+		}
+	}
+
+	// Function to print the vertices of each hole
+	inline void printInnerVertices(FaceDCEL<float, 2>& face) {
+		std::cout << "Inner vertices (by hole):" << std::endl;
+
+		int holeIndex = 1;  // To keep track of hole number
+		for (EdgeDCEL<float, 2>*startEdge : face.inner) {
+			std::cout << "Hole " << holeIndex << ":" << std::endl;
+			EdgeDCEL<float, 2>* currentEdge = startEdge;
+
+			do {
+				std::cout << "  Vertex at (" << currentEdge->origin->point[0]
+					<< ", " << currentEdge->origin->point[1] << ")" << std::endl;
+				currentEdge = currentEdge->next;
+			} while (currentEdge != startEdge);  // Stop when we loop back to the starting edge
+
+			holeIndex++;
+		}
+	}
 
 	// Function to print coordinates of vertices
 	template <typename type, size_t dim>

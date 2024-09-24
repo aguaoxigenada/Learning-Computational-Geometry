@@ -292,6 +292,78 @@ int main()
 		std::cout << "(" << point[X] << "," << point[Y] << ")\n";
 	}
 
+	cout << "\n-----DCEL Face Creation (Two Inner Example + Outer)----\n";
+
+	// Inner face (Square)
+	Vector<float, 2> outer_point_test1(0.0f, 0.0f);
+	Vector<float, 2> outer_point_test2(1.0f, 0.0f);
+	Vector<float, 2> outer_point_test3(01.0f, 1.0f);
+	Vector<float, 2> outer_point_test4(0.0f, 1.0f);
+
+
+	// Outer face (Square)
+	Vector<float, 2> inner_point_test1(0.0f, 0.0f);
+	Vector<float, 2> inner_point_test2(1.0f, 0.0f);
+	Vector<float, 2> inner_point_test3(0.5f, 1.0f);
+	Vector<float, 2> inner_point_test4(2.0f, 2.0f);
+	Vector<float, 2> inner_point_test5(3.0f, 2.0f);
+	Vector<float, 2> inner_point_test6(3.0f, 3.0f);
+	Vector<float, 2> inner_point_test7(2.0f, 3.0f);
+
+	// Create vertices for outer edge
+	VertexDCEL<float, 2> outer1(outer_point_test1);
+	VertexDCEL<float, 2> outer2(outer_point_test2);
+	VertexDCEL<float, 2> outer3(outer_point_test3);
+	VertexDCEL<float, 2> outer4(outer_point_test4);
+
+	// Create edges for outer boundary
+	EdgeDCEL<float, 2> outerEdge1(&outer1);
+	EdgeDCEL<float, 2> outerEdge2(&outer2);
+	EdgeDCEL<float, 2> outerEdge3(&outer3);
+	EdgeDCEL<float, 2> outerEdge4(&outer4);
+
+	// Link outer edges (forming a loop)
+	outerEdge1.next = &outerEdge2;
+	outerEdge2.next = &outerEdge3;
+	outerEdge3.next = &outerEdge4;
+	outerEdge4.next = &outerEdge1; // Closing the loop
+
+	// Vertex and Edge creation for Hole 1 (triangle) and Hole 2 (square)
+	VertexDCEL<float, 2> vA(inner_point_test1), vB(inner_point_test2), vC(inner_point_test3);   // Hole 1 (triangle)
+	VertexDCEL<float, 2> vD(inner_point_test4), vE(inner_point_test5), vF(inner_point_test6), vG(inner_point_test7);  // Hole 2 (square)
+
+
+	// Create edges for inner hole 1
+	EdgeDCEL<float, 2> hole1_innerEdge1(&vA);
+	EdgeDCEL<float, 2> hole1_innerEdge2(&vB);
+	EdgeDCEL<float, 2> hole1_innerEdge3(&vC);
+
+	// Link inner edges (forming a loop)
+	hole1_innerEdge1.next = &hole1_innerEdge2;
+	hole1_innerEdge2.next = &hole1_innerEdge3;
+	hole1_innerEdge3.next = &hole1_innerEdge1; // Closing the loop
+
+	// Create edges for inner hole 2
+	EdgeDCEL<float, 2> hole2_innerEdge1(&vD);
+	EdgeDCEL<float, 2> hole2_innerEdge2(&vE);
+	EdgeDCEL<float, 2> hole2_innerEdge3(&vF);
+	EdgeDCEL<float, 2> hole2_innerEdge4(&vG);
+
+	// Link inner edges for Hole2 (forming a loop)
+	hole2_innerEdge1.next = &hole2_innerEdge2;
+	hole2_innerEdge2.next = &hole2_innerEdge3;
+	hole2_innerEdge3.next = &hole2_innerEdge4; // Closing the loop
+	hole2_innerEdge4.next = &hole2_innerEdge1; // Closing the loop
+
+	// Create a face that has the outer edge and inner hole
+	FaceDCEL<float, 2> innerFaceTest;
+	innerFaceTest.outer = &outerEdge1; // Set outer edge
+	innerFaceTest.inner.push_back(&hole1_innerEdge1); // Adding inner hole 1
+	innerFaceTest.inner.push_back(&hole2_innerEdge2); // Adding inner hole 2
+
+	// Print details for the face, including outer and inner edges
+	innerFaceTest.printEdgeDetails();
+
 	return 0;
 	
 }

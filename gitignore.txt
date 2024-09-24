@@ -363,3 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 /FunctionalityCheck/FunctionalityCheck.vcxproj.filters
 /FunctionalityCheck/FunctionalityCheck.vcxproj
+
+# vsidx files
+*.vsidx
+**/*.vsidx
