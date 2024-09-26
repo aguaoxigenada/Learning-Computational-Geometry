@@ -364,6 +364,9 @@ FodyWeavers.xsd
 /FunctionalityCheck/FunctionalityCheck.vcxproj.filters
 /FunctionalityCheck/FunctionalityCheck.vcxproj
 
+# Ignore all .vs files
+**/.vs/
+
 # vsidx files
 *.vsidx
 **/*.vsidx

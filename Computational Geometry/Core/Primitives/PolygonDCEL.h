@@ -291,7 +291,8 @@ namespace jmk {
 
 	// PolygonDCEL class representing a polygon as a DCEL structure
 	template<class type = float, size_t dim = DIM3 >
-	class PolygonDCEL {
+	class PolygonDCEL
+	{
 		typedef Vector<type, dim> VectorNf;  // Alias for a vector of the specified type and dimension
 		std::vector<VertexDCEL<type, dim>*> vertex_list;  // List of vertices
 		std::vector<EdgeDCEL<type, dim>*> edge_list;      // List of edges
@@ -345,17 +346,19 @@ namespace jmk {
 
 		// Create half-edges and their twins connecting consecutive vertices
 		for (size_t i = 0; i <= vertex_list.size() - 2; i++) {
-			auto hfedge = new EdgeDCEL<type, dim>(vertex_list[i]);
-			auto edge_twin = new EdgeDCEL<type, dim>(vertex_list[i + 1]);
+			auto hfedge = new EdgeDCEL<float, 2>(vertex_list[i]);    // E_0
+			auto edge_twin = new EdgeDCEL<float, 2>(vertex_list[i + 1]); // E_1
 
-			vertex_list[i]->incident_edge = hfedge;
+			vertex_list[i]->incident_edge = hfedge; // Vertex A incident edge
 
-			hfedge->twin = edge_twin;
+			hfedge->twin = edge_twin; // E_0 <-> E_1
 			edge_twin->twin = hfedge;
 
-			edge_list.push_back(hfedge);
-			edge_list.push_back(edge_twin);
+			edge_list.push_back(hfedge); // Add E_0 to the list
+			edge_list.push_back(edge_twin); // Add E_1 to the list
 		}
+
+		// El for loop es -2 aproposito para dejar afuera los ultimos dos vertices.
 
 		// Create the last half-edge and twin, connecting the last and first vertices
 		auto hfedge = new EdgeDCEL<type, dim>(vertex_list.back());
@@ -368,84 +371,64 @@ namespace jmk {
 
 		vertex_list[vertex_list.size() - 1]->incident_edge = hfedge;
 
-		// Set the prev and next edges for all edges
-		for (size_t i = 2; i <= edge_list.size() - 3; i += 2) {
-			edge_list[i]->next = edge_list[i + 2];
-			edge_list[i + 2]->prev = edge_list[i];
-
-			edge_list[i + 1]->prev = edge_list[i - 1];
-			edge_list[i - 1]->next = edge_list[i + 1];
-		}
-
-		// Complete the last and first edges, making the polygon a loop
-		edge_list.front()->prev = edge_list[edge_list.size() - 2];
-		edge_list.back()->prev = edge_list[1];
-
-		edge_list.front()->next = edge_list[2];
-		edge_list[1]->next = edge_list.back();
-
-		// Set the incident edge for the last vertex in the vertex list.
-		// The incident_edge points to one of the half-edges that originates from this vertex.
-		// This is crucial for traversing the DCEL structure from this vertex.
-		vertex_list[vertex_list.size() - 1]->incident_edge = hfedge;
-
-		// Set the prev and next for the element middle of the list ( 2 : size-2)
-		for (size_t i = 2; i <= edge_list.size() - 3; i++) {
-			if (i % 2 == 0)  // Even case. Counter clockwise edges
+		// Set the prev and next for the element middle of the list ( 2 : size- 2)
+		for (size_t i = 2; i <= edge_list.size()-3; i++) {
+			
+			if (i % 2 == 0) // Even case. Counter clockwise edges
 			{
-				edge_list[i]->next = edge_list[i + 2];
+				edge_list[i]->next = edge_list[i + 2];	
 				edge_list[i]->prev = edge_list[i - 2];
 			}
-			else  // Odd case. Clockwise edges
+			else           // Odd case. Clockwise edges
 			{
 				edge_list[i]->next = edge_list[i - 2];
 				edge_list[i]->prev = edge_list[i + 2];
 			}
 		}
 
-		// Setting the first and last elements to close the polygon loop
+		// First to edges
 		edge_list[0]->next = edge_list[2];
-		edge_list[0]->prev = edge_list[edge_list.size() - 2];
-
+		edge_list[0]->prev = edge_list[edge_list.size()-2];
 		edge_list[1]->next = edge_list[edge_list.size() - 1];
 		edge_list[1]->prev = edge_list[3];
 
+		// Last to edges
 		edge_list[edge_list.size() - 2]->next = edge_list[0];
 		edge_list[edge_list.size() - 2]->prev = edge_list[edge_list.size() - 4];
-
 		edge_list[edge_list.size() - 1]->next = edge_list[edge_list.size() - 3];
 		edge_list[edge_list.size() - 1]->prev = edge_list[1];
 
-		// Configure the faces
+		// Configure the faces.
 		FaceDCEL<type, dim>* f1 = new FaceDCEL<type, dim>();
 		FaceDCEL<type, dim>* f2 = new FaceDCEL<type, dim>();
 
 		f1->outer = edge_list[0];
 
-		// f2 is the unbounded face which wraps around f1. 
-		// Thus, f1 is a hole in f2, so it has clockwise edges in its inner edge list.
+		// f2 is the unbounded face which wraps f1. So f1 is a hole in f2. 
+	    // f1 has counter-clockwise edges, while f2 has clockwise edges.
+
 		f2->inner.push_back(edge_list[1]);
 
 		face_list.push_back(f1);
 		face_list.push_back(f2);
 
-		// Assign the incident face to the outer edges of f1
 		f1->outer->incident_face = f1;
 		EdgeDCEL<type, dim>* edge = f1->outer->next;
-
-		while (edge != f1->outer) {
+		while (edge != f1->outer)
+		{
 			edge->incident_face = f1;
 			edge = edge->next;
 		}
 
-		// Assign the incident face to the inner edges of f2
+		// f2->inner has halfedges connect in clockwise order
 		f2->inner[0]->incident_face = f2;
 		edge = f2->inner[0]->next;
-
-		while (edge != f2->inner[0]) {
+		while (edge != f2->inner[0])
+		{
 			edge->incident_face = f2;
 			edge = edge->next;
 		}
+	
 	}
 
 	// Helper function to get edges with the same face and given origins
