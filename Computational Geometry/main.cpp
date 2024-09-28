@@ -364,6 +364,66 @@ int main()
 	// Print details for the face, including outer and inner edges
 	innerFaceTest.printEdgeDetails();
 
+	cout << "\n-----DCEL getEdgesWithSameFaceAndGivenOrigins function example----\n";
+
+	/*
+	// Create some vertices
+	std::vector<Vector<float, 2>> newPoints = {
+		Vector<float, 2>{0.0f, 0.0f},
+		Vector<float, 2>{1.0f, 0.0f},
+		Vector<float, 2>{1.0f, 1.0f},
+		Vector<float, 2>{0.0f, 1.0f}
+	};
+
+	// Create the polygon DCEL (pseudo constructor assuming you have one)
+	PolygonDCEL<float, 2> newPolygon(newPoints);
+
+	// Define some origins we want to check
+	std::vector<VertexDCEL<float, 2>*> origins;
+	origins.push_back(newPolygon.vertex_list[0]); // Origin at (0, 0)
+	origins.push_back(newPolygon.vertex_list[1]); // Origin at (1, 0)
+
+	// Get edges with the same face and given origins
+	std::vector<EdgeDCEL<float, 2>*> matchingEdges = newPolygon.outer->incident_face->getEdgesWithSameFaceAndGivenOrigins(origins);
+
+	// Print the matching edges
+	std::cout << "Matching edges with the same face and given origins:\n";
+	for (auto edge : matchingEdges) {
+		edge->print(); // Assuming print() outputs edge details
+	}
+
+	*/
+	////////////////
+	////////////
+	///
+	// Create a vector of points for the polygon
+	std::vector<VertexDCEL<float, 2>*> points = {
+		new VertexDCEL<float, 2>(0.0f, 0.0f),
+		new VertexDCEL<float, 2>(1.0f, 0.0f),
+		new VertexDCEL<float, 2>(1.0f, 1.0f),
+		new VertexDCEL<float, 2>(0.0f, 1.0f)
+	};
+
+	// Create the polygon DCEL
+	PolygonDCEL<float, 2> polygon(points);
+
+	// Pointers to store the found edges
+	EdgeDCEL<float, 2>* edge_leaving_v1 = nullptr;
+	EdgeDCEL<float, 2>* edge_leaving_v2 = nullptr;
+
+	// Call the function with vertices from the polygon
+	polygon.getEdgesWithSamefaceAndGivenOrigins(polygon.vertex_list[0], polygon.vertex_list[1], &edge_leaving_v1, &edge_leaving_v2);
+
+	// Print the edges found
+	if (edge_leaving_v1) edge_leaving_v1->print();
+	if (edge_leaving_v2) edge_leaving_v2->print();
+
+	// Clean up memory (if necessary, depending on ownership semantics)
+	for (auto point : points) {
+		delete point;
+	}
+
+
 	return 0;
 	
 }
