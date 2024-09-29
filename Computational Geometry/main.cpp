@@ -396,33 +396,35 @@ int main()
 	////////////////
 	////////////
 	///
+	
 	// Create a vector of points for the polygon
-	std::vector<VertexDCEL<float, 2>*> points = {
-		new VertexDCEL<float, 2>(0.0f, 0.0f),
-		new VertexDCEL<float, 2>(1.0f, 0.0f),
-		new VertexDCEL<float, 2>(1.0f, 1.0f),
-		new VertexDCEL<float, 2>(0.0f, 1.0f)
+	std::vector<Vector<float, 2>> polyPoints = {
+		Vector<float, 2>{0.0f, 0.0f},
+		Vector<float, 2>{1.0f, 0.0f},
+		Vector<float, 2>{1.0f, 1.0f},
+		Vector<float, 2>{0.0f, 1.0f}
 	};
 
 	// Create the polygon DCEL
-	PolygonDCEL<float, 2> polygon(points);
+	PolygonDCEL<float, 2> polyPolygon(polyPoints);
 
 	// Pointers to store the found edges
 	EdgeDCEL<float, 2>* edge_leaving_v1 = nullptr;
 	EdgeDCEL<float, 2>* edge_leaving_v2 = nullptr;
 
+	std::vector<VertexDCEL<float, 2>*> origins = polyPolygon.getVertexList();
 	// Call the function with vertices from the polygon
-	polygon.getEdgesWithSamefaceAndGivenOrigins(polygon.vertex_list[0], polygon.vertex_list[1], &edge_leaving_v1, &edge_leaving_v2);
+	polyPolygon.getEdgesWithSamefaceAndGivenOrigins(origins[0], origins[1], &edge_leaving_v1, &edge_leaving_v2);
 
 	// Print the edges found
 	if (edge_leaving_v1) edge_leaving_v1->print();
 	if (edge_leaving_v2) edge_leaving_v2->print();
 
 	// Clean up memory (if necessary, depending on ownership semantics)
-	for (auto point : points) {
+	/*for (auto point : polyPoints) {
 		delete point;
 	}
-
+	*/
 
 	return 0;
 	
