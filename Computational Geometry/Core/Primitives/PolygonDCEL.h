@@ -226,7 +226,8 @@ namespace jmk {
 	};
 
 	// Function to print the edges of each hole
-	inline void printInnerEdges(FaceDCEL<float, 2>& face) {
+	inline void printInnerEdges(FaceDCEL<float, 2>& face)
+	{
 		std::cout << "Inner edges (by hole):" << std::endl;
 
 		int holeIndex = 1;  // To keep track of hole number
@@ -245,7 +246,8 @@ namespace jmk {
 	}
 
 	// Function to print the vertices of each hole
-	inline void printInnerVertices(FaceDCEL<float, 2>& face) {
+	inline void printInnerVertices(FaceDCEL<float, 2>& face)
+	{
 		std::cout << "Inner vertices (by hole):" << std::endl;
 
 		int holeIndex = 1;  // To keep track of hole number
@@ -265,7 +267,8 @@ namespace jmk {
 
 	// Function to print coordinates of vertices
 	template <typename type, size_t dim>
-	void printVertices(const std::vector<VertexDCEL<type, dim>*>& vertices) {
+	void printVertices(const std::vector<VertexDCEL<type, dim>*>& vertices)
+	{
 		for (const auto& vertex : vertices) {
 			std::cout << "(";
 			for (size_t i = 0; i < dim; ++i) {
@@ -307,7 +310,9 @@ namespace jmk {
 		bool split(VertexDCEL<type, dim>* _v1, VertexDCEL<type, dim>* _v2);
 
 		// Join two faces by removing the edge between two vertices
-		bool join(VertexDCEL<type, dim>* _v1, VertexDCEL<type, dim>* _v2);
+		//bool join(VertexDCEL<type, dim>* _v1, VertexDCEL<type, dim>* _v2);
+
+		bool join(EdgeDCEL<type, dim>* edge1, EdgeDCEL<type, dim>* edge2);
 
 		// Get a list of all vertices across all faces
 		std::vector<VertexDCEL<type, dim>*> getVertexList();
@@ -324,7 +329,65 @@ namespace jmk {
 		// Find edges with the same face and given origins
 		void getEdgesWithSamefaceAndGivenOrigins(VertexDCEL<type, dim>* _v1, VertexDCEL<type, dim>* _v2,
 			EdgeDCEL<type, dim>** edge_leaving_v1, EdgeDCEL<type, dim>** edge_leaving_v2);
+
+		// Helper functions to print the polygon
+		void printPolygon();
+		void printEdges();
+		void printVertices();
+		void printFaces();
 	};
+
+	// Helper function to print vertices
+	template <class type, size_t dim>
+	inline void PolygonDCEL<type, dim>::printVertices()
+	{
+		std::cout << "Vertices: \n";
+		for (auto& v : vertex_list) {
+			std::cout << "Vertex: " << " -> (" << v->point[0] << ", " << v->point[1] << ")\n";
+		}
+		std::cout << std::endl;
+	}
+
+	// Helper function to print edges
+	template <class type, size_t dim>
+	inline void PolygonDCEL<type, dim>::printEdges()
+	{
+		std::cout << "Edges: \n";
+		for (auto& e : edge_list) {
+			std::cout << "Edge ID: " << e->id << ", Origin: (" << e->origin->point[0] << ", " << e->origin->point[1] << ")\n";
+			if (e->twin) {
+				std::cout << "    Twin ID: " << e->twin->id << ", Twin Origin: (" << e->twin->origin->point[0] << ", " << e->twin->origin->point[1] << ")\n";
+			}
+		}
+		std::cout << std::endl;
+	}
+
+	// Helper function to print faces
+	template <class type, size_t dim>
+	inline void PolygonDCEL<type, dim>::printFaces()
+	{
+		std::cout << "Faces: \n";
+		for (auto& f : face_list) {
+			std::cout << "Face Outer Boundary: \n";
+			EdgeDCEL<type, dim>* edge = f->outer;
+			if (edge) {
+				do {
+					std::cout << "Edge ID: " << edge->id << " (" << edge->origin->point[0] << ", " << edge->origin->point[1] << ")\n";
+					edge = edge->next;
+				} while (edge != f->outer);
+			}
+			std::cout << std::endl;
+		}
+	}
+
+	// Helper function to print the entire polygon
+	template <class type, size_t dim>
+	inline void PolygonDCEL<type, dim>::printPolygon()
+	{
+		printVertices();
+		printEdges();
+		printFaces();
+	}
 
 	// Type aliases for 2D versions of the DCEL structures
 	typedef VertexDCEL<float, 2U>	Vertex2dDCEL;
@@ -553,9 +616,38 @@ namespace jmk {
 	}
 
 	template<class type, size_t dim>
-	inline bool PolygonDCEL<type, dim>::join(VertexDCEL<type, dim>* _v1, VertexDCEL<type, dim>* _v2)
+	inline bool PolygonDCEL<type, dim>::join(EdgeDCEL<type, dim>* edge1, EdgeDCEL<type, dim>* edge2)
 	{
-		// Join operation is not implemented yet, so just return false.
+		// Check if edge1 and edge2 can be joined
+		if (edge1->origin != edge2->twin->origin) {
+			std::cerr << "Edges cannot be joined; they do not meet at a vertex.\n";
+			return false; // Edges must meet at a common vertex
+		}
+
+		// Check if both edges belong to the same face
+		if (edge1->incident_face == edge2->incident_face) {
+			std::cerr << "Edges cannot be joined; they already belong to the same face.\n";
+			return false; // No joining allowed if they are part of the same face
+		}
+
+		// Update pointers to join the edges
+		edge1->next = edge2->next; // Point edge1 to the next of edge2
+		edge2->next->prev = edge1; // Update the next edge's prev to edge1
+		edge2->prev->next = edge1; // Update edge2's prev next to edge1
+		edge1->prev = edge2->prev;  // Edge1's prev is now edge2's prev
+		edge2->prev->next = edge1; // Close the loop by connecting edge1's prev
+
+		// Adjust the incident face if necessary
+		// This is where you might want to implement merging logic for faces
+		// For simplicity, we will just log a message here
+		std::cerr << "Merging edges from different faces, additional handling may be required.\n";
+
+		// Clean up edge2 as it's no longer part of the structure
+		edge2->next = nullptr; // Prevent dangling pointers
+		edge2->prev = nullptr; // Prevent dangling pointers
+
+		// Return true to indicate success
+		return true;
 		return false;
 	}
 
@@ -594,7 +686,8 @@ namespace jmk {
 	struct Vertex2DSortTBLR {
 		// Custom comparator to sort 2D vertices.
 		// Sort by top-to-bottom, left-to-right (TBLR).
-		bool operator()(Vertex2dDCEL* ref1, Vertex2dDCEL* ref2) {
+		bool operator()(Vertex2dDCEL* ref1, Vertex2dDCEL* ref2)
+		{
 			auto a = ref1->point;
 			auto b = ref2->point;
 

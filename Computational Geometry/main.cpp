@@ -365,38 +365,7 @@ int main()
 	innerFaceTest.printEdgeDetails();
 
 	cout << "\n-----DCEL getEdgesWithSameFaceAndGivenOrigins function example----\n";
-
-	/*
-	// Create some vertices
-	std::vector<Vector<float, 2>> newPoints = {
-		Vector<float, 2>{0.0f, 0.0f},
-		Vector<float, 2>{1.0f, 0.0f},
-		Vector<float, 2>{1.0f, 1.0f},
-		Vector<float, 2>{0.0f, 1.0f}
-	};
-
-	// Create the polygon DCEL (pseudo constructor assuming you have one)
-	PolygonDCEL<float, 2> newPolygon(newPoints);
-
-	// Define some origins we want to check
-	std::vector<VertexDCEL<float, 2>*> origins;
-	origins.push_back(newPolygon.vertex_list[0]); // Origin at (0, 0)
-	origins.push_back(newPolygon.vertex_list[1]); // Origin at (1, 0)
-
-	// Get edges with the same face and given origins
-	std::vector<EdgeDCEL<float, 2>*> matchingEdges = newPolygon.outer->incident_face->getEdgesWithSameFaceAndGivenOrigins(origins);
-
-	// Print the matching edges
-	std::cout << "Matching edges with the same face and given origins:\n";
-	for (auto edge : matchingEdges) {
-		edge->print(); // Assuming print() outputs edge details
-	}
-
-	*/
-	////////////////
-	////////////
-	///
-	
+		
 	// Create a vector of points for the polygon
 	std::vector<Vector<float, 2>> polyPoints = {
 		Vector<float, 2>{0.0f, 0.0f},
@@ -426,8 +395,52 @@ int main()
 	}
 	*/
 
+	cout << "\n-----DCEL Split function example----\n";
+
+	// Create a vector of points for the polygon (let's assume a simple square)
+	std::vector<Vector<float, 2>> splitPolyPoints = {
+		Vector<float, 2>{0.0f, 0.0f},
+		Vector<float, 2>{1.0f, 0.0f},
+		Vector<float, 2>{1.0f, 1.0f},
+		Vector<float, 2>{0.0f, 1.0f}
+	};
+
+		// Create the polygon
+	PolygonDCEL<float, 2> splitPolygon(splitPolyPoints);
+
+	// Print the polygon before the split
+	std::cout << "Polygon Before Split: \n";
+	splitPolygon.printPolygon();
+
+	// Get Origins:
+	std::vector<VertexDCEL<float, 2>*> splitOrigins = splitPolygon.getVertexList();
+
+	// Perform a split between vertices v1 (0,0) and v3 (1,1)
+	VertexDCEL<float, 2>* v1 = splitOrigins[0];  // Point (0.0, 0.0)
+	VertexDCEL<float, 2>* v3 = splitOrigins[2];  // Point (1.0, 1.0)
+
+	bool success = splitPolygon.split(v1, v3);
+
+	if (success) {
+		std::cout << "Polygon split successfully.\n";
+	}
+	else {
+		std::cout << "Polygon split failed.\n";
+	}
+
+	// Print the polygon after the split
+	std::cout << "Polygon After Split: \n";
+	splitPolygon.printPolygon();
+
+
+	/*
+	// Clean up (free memory)
+	for (auto v : splitPolygon.getVertexList) delete v;
+	for (auto e : splitPolygon.getEdgeList()) delete e;
+	for (auto f : splitPolygon.getFaceList()) delete f;
+	*/
+
 	return 0;
-	
 }
 
 

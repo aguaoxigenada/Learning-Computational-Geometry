@@ -17,7 +17,7 @@ D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(
   (compiling source file 'Triangulation.cpp')
   D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(424,16):
   the template instantiation context (the oldest one first) is
-  	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(238,55):
+  	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(239,55):
   	see reference to class template instantiation 'jmk::VertexDCEL<type,2>' being compiled
           with
           [
@@ -31,7 +31,7 @@ D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(
           [
               coordinate_type=float
           ]
-  		D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(239,54):
+  		D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(240,54):
   		see the first reference to 'jmk::Vector<float,2>::operator []' in 'jmk::printInnerEdges'
   	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(421,2):
   	while compiling class template member function 'float jmk::Vector<float,2>::magnitude(void) const'
@@ -69,27 +69,27 @@ D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,20): wa
 D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,20): warning C4305:         [
 D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,20): warning C4305:             coordinate_type=float
 D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(59,20): warning C4305:         ]
-D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(337,12): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(398,12): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   (compiling source file 'main.cpp')
-  D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(337,12):
+  D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(398,12):
   the template instantiation context (the oldest one first) is
-  	D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(409,24):
+  	D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(378,24):
   	see reference to class template instantiation 'jmk::PolygonDCEL<float,2>' being compiled
-  	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(336,77):
+  	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(397,77):
   	while compiling class template member function 'jmk::PolygonDCEL<float,2>::PolygonDCEL(std::vector<jmk::Vector<float,2>,std::allocator<jmk::Vector<float,2>>> &)'
-  		D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(409,35):
+  		D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(378,35):
   		see the first reference to 'jmk::PolygonDCEL<float,2>::PolygonDCEL' in 'main'
   
-D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(285,38): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
+D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(288,38): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
   (compiling source file 'main.cpp')
-  D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(285,38):
+  D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(288,38):
   the template instantiation context (the oldest one first) is
   	D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(272,2):
   	see reference to function template instantiation 'void jmk::printEdges<float,2>(const std::vector<jmk::EdgeDCEL<float,2> *,std::allocator<jmk::EdgeDCEL<float,2> *>> &)' being compiled
   
-D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(272,32): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
+D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(275,32): warning C4267: 'argument': conversion from 'size_t' to 'const unsigned int', possible loss of data
   (compiling source file 'main.cpp')
-  D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(272,32):
+  D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(275,32):
   the template instantiation context (the oldest one first) is
   	D:\Studies\C++\Computational Geometry\Computational Geometry\main.cpp(277,2):
   	see reference to function template instantiation 'void jmk::printVertices<type,2>(const std::vector<jmk::VertexDCEL<type,2> *,std::allocator<jmk::VertexDCEL<type,2> *>> &)' being compiled
@@ -110,7 +110,7 @@ D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(
           [
               coordinate_type=float
           ]
-  		D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(239,54):
+  		D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(240,54):
   		see the first reference to 'jmk::Vector<float,2>::operator []' in 'jmk::printInnerEdges'
   	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(421,2):
   	while compiling class template member function 'float jmk::Vector<float,2>::magnitude(void) const'
