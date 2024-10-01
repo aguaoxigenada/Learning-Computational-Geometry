@@ -432,13 +432,86 @@ int main()
 	std::cout << "Polygon After Split: \n";
 	splitPolygon.printPolygon();
 
+	std::cout << "Join the Polygon: \n";
+
+	std::vector<EdgeDCEL<float, 2>*> edgeOrigins = splitPolygon.getEdgeList();	
+
+	printEdges(edgeOrigins);
+
+	// Now, we want to identify the diagonal edges that were created by the split
+	EdgeDCEL<float, 2>* diagonalEdge1 = nullptr;
+	EdgeDCEL<float, 2>* diagonalEdge2 = nullptr;
+
+	// Loop through edges and find the diagonal edges that go between v1 and v3
+	/*for (EdgeDCEL<float, 2>*edge : edgeOrigins) {
+		if ((edge->origin == v1 && edge->twin->origin == v3) ||
+			(edge->origin == v3 && edge->twin->origin == v1)) {
+			if (!diagonalEdge1) {
+				diagonalEdge1 = edge;
+			}
+			else {
+				diagonalEdge2 = edge;
+				break;  // We found both edges
+			}
+		}
+	}*/
 
 	/*
-	// Clean up (free memory)
-	for (auto v : splitPolygon.getVertexList) delete v;
-	for (auto e : splitPolygon.getEdgeList()) delete e;
-	for (auto f : splitPolygon.getFaceList()) delete f;
+	// Loop through edges and find the diagonal edges that go between v1 and v3
+	for (EdgeDCEL<float, 2>*edge : edgeOrigins) {
+		// Instead of checking for twins, just check if they connect the vertices directly
+		if ((edge->origin == v1 && edge->next->origin == v3) ||
+			(edge->origin == v3 && edge->next->origin == v1))
+		{
+			if (!diagonalEdge1) 
+			{
+				diagonalEdge1 = edge;
+			}
+			else 
+			{
+				diagonalEdge2 = edge;
+				break;  // We found both edges
+			}
+		}
+	}*/
+
+	// After the split, iterate over newly created edges
+	for (EdgeDCEL<float, 2>*edge : edgeOrigins) {
+		if ((edge->origin == v1 && edge->twin->origin == v3) ||
+			(edge->origin == v3 && edge->twin->origin == v1)) {
+			if (!diagonalEdge1) {
+				diagonalEdge1 = edge;
+			}
+			else {
+				diagonalEdge2 = edge;
+				break;  // We found both edges
+			}
+		}
+	}
+
+	// Ensure we found the diagonal edges
+	if (!diagonalEdge1 || !diagonalEdge2) {
+		std::cerr << "Failed to find diagonal edges created by the split.\n";
+		return -1;  // Exit if we cannot find the edges
+	}
+	/*
+	// Assume we want to join the first and second edges
+	EdgeDCEL<float, 2>* joinEdge1 = edgeOrigins[7]; 
+	EdgeDCEL<float, 2>* joinEdge2 = edgeOrigins[8]; 
 	*/
+
+	bool joinSuccess = splitPolygon.join(diagonalEdge1, diagonalEdge2);
+
+	if (joinSuccess) {
+		std::cout << "Edges joined successfully.\n";
+	}
+	else {
+		std::cout << "Failed to join edges.\n";
+	}
+
+	// Print polygon after joining
+	std::cout << "Polygon After Join: \n";
+	splitPolygon.printPolygon();
 
 	return 0;
 }
