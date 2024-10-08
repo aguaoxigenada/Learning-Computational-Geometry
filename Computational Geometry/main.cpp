@@ -11,7 +11,7 @@ using namespace std;
 
 int main()
 {
-	
+	/*
 	cout << "\n----- Angle Lines 2D Test -----\n";
 
 	Vector2f l1Dir(2, 1);
@@ -388,7 +388,7 @@ int main()
 	// Print the edges found
 	if (edge_leaving_v1) edge_leaving_v1->print();
 	if (edge_leaving_v2) edge_leaving_v2->print();
-
+	*/
 	// Clean up memory (if necessary, depending on ownership semantics)
 	/*for (auto point : polyPoints) {
 		delete point;
@@ -442,38 +442,7 @@ int main()
 	EdgeDCEL<float, 2>* diagonalEdge1 = nullptr;
 	EdgeDCEL<float, 2>* diagonalEdge2 = nullptr;
 
-	// Loop through edges and find the diagonal edges that go between v1 and v3
-	/*for (EdgeDCEL<float, 2>*edge : edgeOrigins) {
-		if ((edge->origin == v1 && edge->twin->origin == v3) ||
-			(edge->origin == v3 && edge->twin->origin == v1)) {
-			if (!diagonalEdge1) {
-				diagonalEdge1 = edge;
-			}
-			else {
-				diagonalEdge2 = edge;
-				break;  // We found both edges
-			}
-		}
-	}*/
 
-	/*
-	// Loop through edges and find the diagonal edges that go between v1 and v3
-	for (EdgeDCEL<float, 2>*edge : edgeOrigins) {
-		// Instead of checking for twins, just check if they connect the vertices directly
-		if ((edge->origin == v1 && edge->next->origin == v3) ||
-			(edge->origin == v3 && edge->next->origin == v1))
-		{
-			if (!diagonalEdge1) 
-			{
-				diagonalEdge1 = edge;
-			}
-			else 
-			{
-				diagonalEdge2 = edge;
-				break;  // We found both edges
-			}
-		}
-	}*/
 
 	// After the split, iterate over newly created edges
 	for (EdgeDCEL<float, 2>*edge : edgeOrigins) {
@@ -494,11 +463,7 @@ int main()
 		std::cerr << "Failed to find diagonal edges created by the split.\n";
 		return -1;  // Exit if we cannot find the edges
 	}
-	/*
-	// Assume we want to join the first and second edges
-	EdgeDCEL<float, 2>* joinEdge1 = edgeOrigins[7]; 
-	EdgeDCEL<float, 2>* joinEdge2 = edgeOrigins[8]; 
-	*/
+
 
 	bool joinSuccess = splitPolygon.join(diagonalEdge1, diagonalEdge2);
 

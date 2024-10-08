@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <iostream>
+#include <unordered_set>
+
 #include "Point.h"
 
 namespace jmk {
@@ -372,19 +374,26 @@ namespace jmk {
 	template <class type, size_t dim>
 	inline void PolygonDCEL<type, dim>::printEdges()
 	{
+		std::unordered_set<EdgeDCEL<type, dim>*> printedEdges; // Store edges that have been printed
 		std::cout << "Edges: \n";
-		for (auto& e : edge_list) {
+
+		for (auto& e : edge_list)
+		{
+			// Skip this edge if its twin has already been printed
+			if (printedEdges.find(e) != printedEdges.end())
+			{
+				continue; // If the edge has already been printed, skip it
+			}
+
+			// Print the current edge
 			std::cout << "Edge ID: " << e->id << ", Origin: (" << e->origin->point[0] << ", " << e->origin->point[1] << ")\n";
 
-			/*if (e->twin->origin->incident_edge == nullptr)
-			{
-				std::cout << "    Twin: nullptr (no twin)\n";
-			}*/
-			/*else*/ if (e->twin) 
+			// Print the twin if it exists
+			if (e->twin)
 			{
 				std::cout << "    Twin ID: " << e->twin->id << ", Twin Origin: (" << e->twin->origin->point[0] << ", " << e->twin->origin->point[1] << ")\n";
+				printedEdges.insert(e->twin); // Mark the twin as printed
 			}
-			
 		}
 		std::cout << std::endl;
 	}
@@ -610,13 +619,6 @@ namespace jmk {
 		half_edge1->prev->next = half_edge1;
 		half_edge2->prev->next = half_edge2;
 
-		/*
-		// Update the original edges to point to the new half-edges as their neighbors.
-		edge_oriV1->prev->next = half_edge1;
-		edge_oriV2->prev->next = half_edge2;
-		edge_oriV1->prev = half_edge2;
-		edge_oriV2->prev = half_edge1;
-		*/
 		// Create two new faces from the split. 
 		FaceDCEL<type, dim>* new_face1 = new FaceDCEL<type, dim>();
 		new_face1->outer = half_edge1;
@@ -660,86 +662,102 @@ namespace jmk {
 	template<class type, size_t dim>
 	inline bool PolygonDCEL<type, dim>::join(EdgeDCEL<type, dim>* edge1, EdgeDCEL<type, dim>* edge2)
 	{
-		
-		// Ensure both edges are not null
-		if (!edge1 || !edge2 || edge1->incident_face == edge2->incident_face)
-		{
+		// Ensure both edges are not null and belong to different faces
+		if (!edge1 || !edge2 || edge1->incident_face == edge2->incident_face) {
 			std::cerr << "One or both of the edges are null.\n";
-			std::cerr << " Or Edges cannot be joined; they belong to the same face.\n";
+			std::cerr << "Or edges cannot be joined; they belong to the same face.\n";
 			return false;
 		}
 
 		// Ensure edge1 and edge2 meet at a vertex
-		if (edge1->origin != edge2->twin->origin || edge1->twin->origin != edge2->origin) 
-		{
+		if (edge1->origin != edge2->twin->origin || edge1->twin->origin != edge2->origin) {
 			std::cerr << "Edges cannot be joined; they do not meet at a common vertex.\n";
 			return false;
 		}
 
 		// Debug: Log the edges being joined
-		std::cout << "Joining edges with origins: " << edge1->origin << " and " << edge2->origin << std::endl;
+		std::cout << "Joining edges with origins: (" << edge1->origin->point[0] << ", " << edge1->origin->point[1] << ") and ("
+			<< edge2->origin->point[0] << ", " << edge2->origin->point[1] << ")\n";
 
-		// First, store references to edge2's next and prev to simplify operations
+		// Store references to edge2's next and prev to simplify operations
 		EdgeDCEL<type, dim>* edge2Next = edge2->next;
 		EdgeDCEL<type, dim>* edge2Prev = edge2->prev;
 
-		// Debugging: Print edge information before joining
-		std::cout << "Joining edges: " << edge1->id << " and " << edge2->id << std::endl;
-		std::cout << "Edge1 Origin: (" << edge1->origin->point[0] << ", " << edge1->origin->point[1] << ")\n";
-		std::cout << "Edge2 Origin: (" << edge2->origin->point[0] << ", " << edge2->origin->point[1] << ")\n";
+		// Update pointers to merge edge1 and edge2's surrounding edges
+		edge1->next = edge2Prev;          
+		edge2->next = edge1->prev;
+
+		EdgeDCEL<type, dim>* testCurrentEdge = edge1;
+		EdgeDCEL<type, dim>* testStartEdge = edge1;  // Save the starting edge to detect when the loop closes
 
 
-		// Update pointers to merge edge1 and edge2 s surrounding edges
+		std::cout << "Traversing the edges from the origin and printing the coordinates:\n";
 
-		edge1->next = edge2Next;          // Point edge1 to edge2's next
-		edge2Next->prev = edge1;          // edge2's next edge should now point back to edge1
+		// Traverse until we loop back to the starting edge and update the twins
+		do {
 
-		edge1->prev = edge2Prev;          // Point edge1's prev to edge2's prev
-		edge2Prev->next = edge1;          // edge2's prev edge should now point to edge1
+			testCurrentEdge->twin = testCurrentEdge->next;
 
+			if (testCurrentEdge->twin) {
+				// Print the current edge's origin and its twin's origin
+				std::cout << "Edge ID: " << testCurrentEdge->id << ", Origin: ("
+					<< testCurrentEdge->origin->point[0] << ", "
+					<< testCurrentEdge->origin->point[1] << ")";
 
-		// Now we need to update the incident faces
-		// We will merge the faces by traversing the edges of edge2's face and updating them to edge1's face
-		FaceDCEL<type, dim>* face1 = edge1->incident_face;
-		FaceDCEL<type, dim>* face2 = edge2->incident_face;
+				std::cout << " has a twin: Edge ID: " << testCurrentEdge->twin->id << ", Twin Origin: ("
+					<< testCurrentEdge->twin->origin->point[0] << ", "
+					<< testCurrentEdge->twin->origin->point[1] << ")\n";
+			}
+			else {
+				// If no twin is present, print that information
+				std::cout << "Edge ID: " << testCurrentEdge->id << " has no twin.\n";
+			}
+
+			//testCurrentEdge->twin->next = testCurrentEdge->next;
+
+			// Move to the next edge
+			testCurrentEdge = testCurrentEdge->next;
+
+		} while (testCurrentEdge != testStartEdge);  // Continue until we loop back to the origin
+
+	
+		// Update the incident face of all edges that were previously incident to edge2's face
+		FaceDCEL<type, dim>* face1 = edge1->incident_face; // Face that edge1 belongs to
+		FaceDCEL<type, dim>* face2 = edge2->incident_face; // Face that edge2 belongs to
 
 		// Debugging: Check connectivity before traversal
 		std::cout << "Starting face merge, updating edges from face2 to face1.\n";
 
 		// Update the face structure:
 		// All edges previously incident to face2 will now point to face1
-		EdgeDCEL<type, dim>* startEdge = edge2Next;   // Traverse starting from edge2's next, as edge2 is being removed
-		EdgeDCEL<type, dim>* currentEdge = startEdge;
+		EdgeDCEL<type, dim>* currentEdge = edge1;   // Start from edge2's next, as edge2 is being removed
 
-		int maxIterations = 1000;  // A safeguard to prevent infinite loops
+		// Iterate through edges and update the incident face
+		int maxIterations = 1000;  // Safeguard to prevent infinite loops
 		int iterationCount = 0;
-
 		do {
-			// Debugging: Print the current edge being processed
-			std::cout << "Updating edge " << currentEdge->id << " to face1.\n";
-
 			currentEdge->incident_face = face1;
 			currentEdge = currentEdge->next;
 
-			// Safety check: If we exceed maxIterations, break to prevent infinite loops
 			iterationCount++;
 			if (iterationCount > maxIterations) {
 				std::cerr << "Error: Exceeded maximum iterations, possible infinite loop.\n";
 				break;
 			}
+		} while (currentEdge != edge1);  // Should loop back to edge2Next
 
-			
-			// Safety check: Make sure the `next` pointer is valid
-			if (!currentEdge) {
-				std::cerr << "Error: Invalid edge pointer found, breaking out of loop.\n";
-				break;
-			}
-			
-		} while (currentEdge != startEdge);
+		// Remove the twin edge from the edge list
+		auto twin_it = std::find(edge_list.begin(), edge_list.end(), edge2->twin);
+		if (twin_it != edge_list.end()) {
+			edge_list.erase(twin_it);
+		}
 
-		
-
-	
+		// Clean up face2 since it no longer exists
+		auto face_it = std::find(face_list.begin(), face_list.end(), face2);
+		if (face_it != face_list.end()) {
+			face_list.erase(face_it);  // Remove face2 from the list
+			delete face2;               // Clean up face2
+		}
 
 		// Remove edge2 from the edge list
 		auto it = std::find(edge_list.begin(), edge_list.end(), edge2);
@@ -747,40 +765,21 @@ namespace jmk {
 			edge_list.erase(it);
 		}
 
-		// Now, handle the twin edges properly:
-		if (edge2->twin) {
-			// If edge2 has a twin, update the twin's twin to point to edge1's twin
-			if (edge1->twin && edge2->twin) {
-				edge1->twin->twin = edge2->twin;
-				edge2->twin->twin = edge1->twin;
-			}
+		// this is wrong, because it should actually make the inner edges clockwise with the twins.
+		// Now we need to reconstruct the inner edges of face1
+		face1->inner.clear(); // Clear the inner edges, if any
+		EdgeDCEL<type, dim>* innerEdge = edge1->twin; // Start from edge1'twin
 
-			// Remove edge2's twin from the edge list, if it exists
-			auto twin_it = std::find(edge_list.begin(), edge_list.end(), edge2->twin);
-			if (twin_it != edge_list.end()) {
-				edge_list.erase(twin_it);
-			}
-		}
+		/*
+		do {
+			face1->inner.push_back(innerEdge);
+			innerEdge = innerEdge->next; // Move to the next edge
+		} while (innerEdge != edge1->twin); // Continue until we loop back to edge1
+		*/
 
-		// Clean up edge2 as it's no longer part of the structure
-		edge2->next = nullptr; // Prevent dangling pointers
-		edge2->prev = nullptr; // Prevent dangling pointers
-		edge2->twin = nullptr;
-
-		// Clean up edge2 as it's no longer part of the structure
-		delete edge2;
-
-		/* // After merging, we don't have a new face in face_list. 
-		// We need to add face1 since it should now represent the combined area.
+		// Finally, add face1 to the face list if it was not already there
 		if (std::find(face_list.begin(), face_list.end(), face1) == face_list.end()) {
-			face_list.push_back(face1);  // Ensure face1 is still in the list
-		}*/
-
-		// Clean up face2 since it no longer exists
-		auto face_it = std::find(face_list.begin(), face_list.end(), face2);
-		if (face_it != face_list.end()) {
-			face_list.erase(face_it);
-			delete face2; // Only delete if it's successfully removed from the list
+			face_list.push_back(face1);
 		}
 
 		// Return true to indicate success
