@@ -399,10 +399,14 @@ int main()
 
 	// Create a vector of points for the polygon (let's assume a simple square)
 	std::vector<Vector<float, 2>> splitPolyPoints = {
-		Vector<float, 2>{0.0f, 0.0f},
+
+		Vector<float, 2>{0.0f, 0.0f},  // First vertex
+		Vector<float, 2>{1.0f, 0.0f},  // Second vertex
+		Vector<float, 2>{0.5f, 1.0f}   // Third vertex (midpoint to form a triangle)
+		/*Vector<float, 2>{0.0f, 0.0f},
 		Vector<float, 2>{1.0f, 0.0f},
 		Vector<float, 2>{1.0f, 1.0f},
-		Vector<float, 2>{0.0f, 1.0f}
+		Vector<float, 2>{0.0f, 1.0f}*/
 	};
 
 		// Create the polygon
@@ -426,6 +430,7 @@ int main()
 	}
 	else {
 		std::cout << "Polygon split failed.\n";
+		return 0;
 	}
 
 	// Print the polygon after the split

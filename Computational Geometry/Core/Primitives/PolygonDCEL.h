@@ -687,16 +687,18 @@ namespace jmk {
 		edge1->next = edge2Prev;          
 		edge2->next = edge1->prev;
 
+		
+		
 		EdgeDCEL<type, dim>* testCurrentEdge = edge1;
 		EdgeDCEL<type, dim>* testStartEdge = edge1;  // Save the starting edge to detect when the loop closes
 
-
-		std::cout << "Traversing the edges from the origin and printing the coordinates:\n";
+/*		std::cout << "Traversing the edges from the origin and printing the coordinates:\n";
 
 		// Traverse until we loop back to the starting edge and update the twins
 		do {
 
-			testCurrentEdge->twin = testCurrentEdge->next;
+			//testCurrentEdge->twin = testCurrentEdge->next;
+			//testCurrentEdge->twin->next = testCurrentEdge;
 
 			if (testCurrentEdge->twin) {
 				// Print the current edge's origin and its twin's origin
@@ -713,14 +715,13 @@ namespace jmk {
 				std::cout << "Edge ID: " << testCurrentEdge->id << " has no twin.\n";
 			}
 
-			//testCurrentEdge->twin->next = testCurrentEdge->next;
 
 			// Move to the next edge
 			testCurrentEdge = testCurrentEdge->next;
 
 		} while (testCurrentEdge != testStartEdge);  // Continue until we loop back to the origin
 
-	
+	*/
 		// Update the incident face of all edges that were previously incident to edge2's face
 		FaceDCEL<type, dim>* face1 = edge1->incident_face; // Face that edge1 belongs to
 		FaceDCEL<type, dim>* face2 = edge2->incident_face; // Face that edge2 belongs to
