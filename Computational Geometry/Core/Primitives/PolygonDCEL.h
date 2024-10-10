@@ -48,7 +48,8 @@ namespace jmk {
 
 	// EdgeDCEL structure representing an edge in the DCEL
 	template<class type = float, size_t dim = DIM3 >
-	struct EdgeDCEL {
+	struct EdgeDCEL
+	{
 		VertexDCEL<type, dim>* origin = nullptr;        // Origin vertex of the edge
 		EdgeDCEL<type, dim>* twin = nullptr;            // Twin edge in the opposite direction
 		EdgeDCEL<type, dim>* next = nullptr;            // Next edge in counter-clockwise order
@@ -60,17 +61,20 @@ namespace jmk {
 		EdgeDCEL() { id = -1; }
 
 		// Constructor initializes the edge with a given origin vertex and assigns a unique ID
-		EdgeDCEL(VertexDCEL<type, dim>* _origin) : origin(_origin) {
+		EdgeDCEL(VertexDCEL<type, dim>* _origin) : origin(_origin)
+		{
 			id = _id++;  // Increment the static ID
 		}
 
 		// Returns the destination vertex of the edge by accessing the twin's origin
-		VertexDCEL<type, dim>* destination() {
+		VertexDCEL<type, dim>* destination()
+		{
 			return twin->origin;
 		}
 
 		// Print function for debugging, outputs details about the edge
-		void print() {
+		void print()
+		{
 			std::cout << "Edge ID: " << id << "\n";
 			std::cout << "This point pointer: " << this << "\n";
 			std::cout << "Origin: ";
@@ -80,7 +84,6 @@ namespace jmk {
 			std::cout << "Next pointer: " << next << "\n"; 
 			std::cout << "Prev pointer: " << prev << "\n";
 		}
-
 	};
 
 	// FaceDCEL structure representing a face in the DCEL
@@ -95,13 +98,15 @@ namespace jmk {
 		// Print function to print the vertices of the face by following the outer edges
 		void print()
 		{
-			if (outer) {
+			if (outer) 
+			{
 				std::cout << "Outer Vertex Lists:\n";
 				auto edge_ptr = outer;
 				auto next_ptr = outer->next;
 
 				edge_ptr->origin->print();
-				while (next_ptr != edge_ptr) {
+				while (next_ptr != edge_ptr) 
+				{
 					next_ptr->origin->print();
 					next_ptr = next_ptr->next;
 				}
@@ -139,21 +144,6 @@ namespace jmk {
 			}
 		}
 
-		void printInner()  //borrar
-		{
-			std::cout << "Inner Edge Lists:\n";
-			for (EdgeDCEL<type, dim>* startEdge : inner) {
-				EdgeDCEL<type, dim>* currentEdge = startEdge;
-				std::cout << "Hole starting with Edge ID: " << currentEdge->id << "\n";
-
-				// Collect and print all edges in this loop
-				do {
-					currentEdge->print(); // Print edge details
-					currentEdge = currentEdge->next;
-				} while (currentEdge != startEdge);  // Stop when we loop back to the starting edge
-			}
-		}
-
 		// Returns a list of edges forming the boundary of the face
 		std::vector<EdgeDCEL<type, dim>*> getEdgeList()
 		{
@@ -163,7 +153,8 @@ namespace jmk {
 				auto next_ptr = outer->next;
 				edge_list.push_back(edge_ptr); // Add first edge to the list
 				edge_ptr->origin->print();
-				while (next_ptr != edge_ptr) {
+				while (next_ptr != edge_ptr) 
+				{
 					edge_list.push_back(next_ptr);  // Add subsequent edges
 					next_ptr = next_ptr->next;
 				}
@@ -193,13 +184,14 @@ namespace jmk {
 
 		// Returns a list of points (vertices) defining the boundary of the face
 		std::vector<Vector<float, dim>> getPoints()
-			{
+		{
 			std::vector<Vector<float, dim>> point_list;
 			if (outer) {
 				auto edge_ptr = outer;
 				auto next_ptr = outer->next;
 				point_list.push_back(edge_ptr->origin->point); // Add first point
-				while (next_ptr != edge_ptr) {
+				while (next_ptr != edge_ptr) 
+				{
 					point_list.push_back(next_ptr->origin->point);  // Add subsequent points
 					next_ptr = next_ptr->next;
 				}
@@ -209,11 +201,13 @@ namespace jmk {
 
 
 		// Method to get the list of vertices for all inner faces (holes)
-		std::vector<VertexDCEL<type, dim>*> getInnerPoints() {
+		std::vector<VertexDCEL<type, dim>*> getInnerPoints()
+		{
 			std::vector<VertexDCEL<type, dim>*> innerVertices;
 
 			// Iterate through each inner boundary (each hole)
-			for (EdgeDCEL<type, dim>* startEdge : inner) {
+			for (EdgeDCEL<type, dim>* startEdge : inner) 
+			{
 				EdgeDCEL<type, dim>* currentEdge = startEdge;
 
 				// Traverse the edges of this inner loop and collect vertices
@@ -283,10 +277,13 @@ namespace jmk {
 
 	// Function to print edges (just print the origin vertices for simplicity)
 	template <typename type, size_t dim>
-	void printEdges(const std::vector<EdgeDCEL<type, dim>*>& edges) {
-		for (const auto& edge : edges) {
+	void printEdges(const std::vector<EdgeDCEL<type, dim>*>& edges)
+	{
+		for (const auto& edge : edges) 
+		{
 			std::cout << "Edge from (";
-			for (size_t i = 0; i < dim; ++i) {
+			for (size_t i = 0; i < dim; ++i) 
+			{
 				std::cout << edge->origin->point[i];
 				if (i < dim - 1) std::cout << ", ";
 			}
@@ -295,17 +292,20 @@ namespace jmk {
 
 			// Print the destination (next vertex in the edge cycle)
 			std::cout << " to (";
-			for (size_t i = 0; i < dim; ++i) {
+			for (size_t i = 0; i < dim; ++i) 
+			{
 				std::cout << edge->next->origin->point[i];
 				if (i < dim - 1) std::cout << ", ";
 			}
 			std::cout << ")";
 
 			// Print the incident face information
-			if (edge->incident_face) {
+			if (edge->incident_face) 
+			{
 				std::cout << " belongs to Face: " << edge->incident_face;
 			}
-			else {
+			else 
+			{
 				std::cout << " does not belong to any face";
 			}
 			std::cout << "\n";
@@ -330,6 +330,7 @@ namespace jmk {
 
 		// Insert an edge between two vertices, splitting the face
 		bool split(VertexDCEL<type, dim>* _v1, VertexDCEL<type, dim>* _v2);
+		void clear();
 
 		// Join two faces by removing the edge between two vertices
 		bool join(VertexDCEL<type, dim>* _v1, VertexDCEL<type, dim>* _v2);
@@ -442,12 +443,14 @@ namespace jmk {
 			return;
 
 		// Add vertices to the vertex list
-		for (size_t i = 0; i < _points.size(); i++) {
+		for (size_t i = 0; i < _points.size(); i++) 
+		{
 			vertex_list.push_back(new VertexDCEL<type, dim>(_points[i]));
 		}
 
 		// Create half-edges and their twins connecting consecutive vertices
-		for (size_t i = 0; i <= vertex_list.size() - 2; i++) {
+		for (size_t i = 0; i <= vertex_list.size() - 2; i++) 
+		{
 			auto hfedge = new EdgeDCEL<float, 2>(vertex_list[i]);    // E_0
 			auto edge_twin = new EdgeDCEL<float, 2>(vertex_list[i + 1]); // E_1
 
@@ -494,7 +497,7 @@ namespace jmk {
 		edge_list[1]->next = edge_list[edge_list.size() - 1];
 		edge_list[1]->prev = edge_list[3];
 
-		// Last to edges
+		// Last twoo edges
 		edge_list[edge_list.size() - 2]->next = edge_list[0];
 		edge_list[edge_list.size() - 2]->prev = edge_list[edge_list.size() - 4];
 		edge_list[edge_list.size() - 1]->next = edge_list[edge_list.size() - 3];
@@ -572,7 +575,7 @@ namespace jmk {
 			}
 		}
 	}
-
+	
 	template<class type, size_t dim>
 	inline bool PolygonDCEL<type, dim>::split(VertexDCEL<type, dim>* _v1, VertexDCEL<type, dim>* _v2)
 	{
@@ -626,7 +629,8 @@ namespace jmk {
 
 		// Traverse all edges starting from half_edge1 and assign them to new_face1.
 		auto temp_edge = half_edge1->next;
-		while (temp_edge != half_edge1) {
+		while (temp_edge != half_edge1) 
+		{
 			temp_edge->incident_face = new_face1;
 			temp_edge = temp_edge->next;
 		}
@@ -638,7 +642,8 @@ namespace jmk {
 
 		// Traverse all edges starting from half_edge2 and assign them to new_face2.
 		temp_edge = half_edge2->next;
-		while (temp_edge != half_edge2) {
+		while (temp_edge != half_edge2) 
+		{
 			temp_edge->incident_face = new_face2;
 			temp_edge = temp_edge->next;
 		}
@@ -658,181 +663,121 @@ namespace jmk {
 		return true;
 	}
 
+	template<class type, size_t dim>
+	void PolygonDCEL<type, dim>::clear()
+	{
+		// Delete all vertices
+		for (auto vertex : vertex_list) {
+			delete vertex; // Assuming vertex_list holds pointers to VertexDCEL
+		}
+		vertex_list.clear(); // Clear the vertex list
+
+		// Delete all edges
+		for (auto edge : edge_list) {
+			delete edge; // Assuming edge_list holds pointers to EdgeDCEL
+		}
+		edge_list.clear(); // Clear the edge list
+
+		// Delete all faces
+		for (auto face : face_list) {
+			delete face; // Assuming face_list holds pointers to FaceDCEL
+		}
+		face_list.clear(); // Clear the face list
+	}
+
 	
 	template<class type, size_t dim>
 	inline bool PolygonDCEL<type, dim>::join(EdgeDCEL<type, dim>* edge1, EdgeDCEL<type, dim>* edge2)
 	{
 		// Ensure both edges are not null and belong to different faces
-		if (!edge1 || !edge2 || edge1->incident_face == edge2->incident_face) {
-			std::cerr << "One or both of the edges are null.\n";
-			std::cerr << "Or edges cannot be joined; they belong to the same face.\n";
+		if (!edge1 || !edge2 || edge1->incident_face == edge2->incident_face)
+		{
+			std::cerr << "One or both of the edges are null, or they belong to the same face.\n";
 			return false;
 		}
 
 		// Ensure edge1 and edge2 meet at a vertex
-		if (edge1->origin != edge2->twin->origin || edge1->twin->origin != edge2->origin) {
+		if (edge1->origin != edge2->twin->origin || edge1->twin->origin != edge2->origin)
+		{
 			std::cerr << "Edges cannot be joined; they do not meet at a common vertex.\n";
 			return false;
 		}
 
-		// Debug: Log the edges being joined
-		std::cout << "Joining edges with origins: (" << edge1->origin->point[0] << ", " << edge1->origin->point[1] << ") and ("
-			<< edge2->origin->point[0] << ", " << edge2->origin->point[1] << ")\n";
+		// Debugging: Print edge information before joining
+		std::cout << "Joining edges: " << edge1->id << " and " << edge2->id << std::endl;
 
-		// Store references to edge2's next and prev to simplify operations
-		EdgeDCEL<type, dim>* edge2Next = edge2->next;
-		EdgeDCEL<type, dim>* edge2Prev = edge2->prev;
+		// Remove edge1 and edge2 from the edge list
+		edge_list.erase(std::remove(edge_list.begin(), edge_list.end(), edge1), edge_list.end());
+		edge_list.erase(std::remove(edge_list.begin(), edge_list.end(), edge2), edge_list.end());
 
-		// Update pointers to merge edge1 and edge2's surrounding edges
-		edge1->next = edge2Prev;          
-		edge2->next = edge1->prev;
+		// Optionally, you can delete edge1 and edge2 from memory if they are dynamically allocated
+		delete edge1;
+		delete edge2;
 
-		
-		
-		EdgeDCEL<type, dim>* testCurrentEdge = edge1;
-		EdgeDCEL<type, dim>* testStartEdge = edge1;  // Save the starting edge to detect when the loop closes
+		// Set the prev and next for the element middle of the list ( 2 : size- 2)
+		for (size_t i = 2; i <= edge_list.size() - 3; i++) {
 
-/*		std::cout << "Traversing the edges from the origin and printing the coordinates:\n";
-
-		// Traverse until we loop back to the starting edge and update the twins
-		do {
-
-			//testCurrentEdge->twin = testCurrentEdge->next;
-			//testCurrentEdge->twin->next = testCurrentEdge;
-
-			if (testCurrentEdge->twin) {
-				// Print the current edge's origin and its twin's origin
-				std::cout << "Edge ID: " << testCurrentEdge->id << ", Origin: ("
-					<< testCurrentEdge->origin->point[0] << ", "
-					<< testCurrentEdge->origin->point[1] << ")";
-
-				std::cout << " has a twin: Edge ID: " << testCurrentEdge->twin->id << ", Twin Origin: ("
-					<< testCurrentEdge->twin->origin->point[0] << ", "
-					<< testCurrentEdge->twin->origin->point[1] << ")\n";
+			if (i % 2 == 0) // Even case. Counter clockwise edges
+			{
+				edge_list[i]->next = edge_list[i + 2];
+				edge_list[i]->prev = edge_list[i - 2];
 			}
-			else {
-				// If no twin is present, print that information
-				std::cout << "Edge ID: " << testCurrentEdge->id << " has no twin.\n";
+			else           // Odd case. Clockwise edges
+			{
+				edge_list[i]->next = edge_list[i - 2];
+				edge_list[i]->prev = edge_list[i + 2];
 			}
-
-
-			// Move to the next edge
-			testCurrentEdge = testCurrentEdge->next;
-
-		} while (testCurrentEdge != testStartEdge);  // Continue until we loop back to the origin
-
-	*/
-		// Update the incident face of all edges that were previously incident to edge2's face
-		FaceDCEL<type, dim>* face1 = edge1->incident_face; // Face that edge1 belongs to
-		FaceDCEL<type, dim>* face2 = edge2->incident_face; // Face that edge2 belongs to
-
-		// Debugging: Check connectivity before traversal
-		std::cout << "Starting face merge, updating edges from face2 to face1.\n";
-
-		// Update the face structure:
-		// All edges previously incident to face2 will now point to face1
-		EdgeDCEL<type, dim>* currentEdge = edge1;   // Start from edge2's next, as edge2 is being removed
-
-		// Iterate through edges and update the incident face
-		int maxIterations = 1000;  // Safeguard to prevent infinite loops
-		int iterationCount = 0;
-		do {
-			currentEdge->incident_face = face1;
-			currentEdge = currentEdge->next;
-
-			iterationCount++;
-			if (iterationCount > maxIterations) {
-				std::cerr << "Error: Exceeded maximum iterations, possible infinite loop.\n";
-				break;
-			}
-		} while (currentEdge != edge1);  // Should loop back to edge2Next
-
-		// Remove the twin edge from the edge list
-		auto twin_it = std::find(edge_list.begin(), edge_list.end(), edge2->twin);
-		if (twin_it != edge_list.end()) {
-			edge_list.erase(twin_it);
 		}
 
-		// Clean up face2 since it no longer exists
-		auto face_it = std::find(face_list.begin(), face_list.end(), face2);
-		if (face_it != face_list.end()) {
-			face_list.erase(face_it);  // Remove face2 from the list
-			delete face2;               // Clean up face2
+		// First to edges
+		edge_list[0]->next = edge_list[2];
+		edge_list[0]->prev = edge_list[edge_list.size() - 2];
+		edge_list[1]->next = edge_list[edge_list.size() - 1];
+		edge_list[1]->prev = edge_list[3];
+
+		// Last twoo edges
+		edge_list[edge_list.size() - 2]->next = edge_list[0];
+		edge_list[edge_list.size() - 2]->prev = edge_list[edge_list.size() - 4];
+		edge_list[edge_list.size() - 1]->next = edge_list[edge_list.size() - 3];
+		edge_list[edge_list.size() - 1]->prev = edge_list[1];
+
+		// Delete all faces
+		for (auto face : face_list) {
+			delete face; // Assuming face_list holds pointers to FaceDCEL
 		}
+		face_list.clear(); // Clear the face list
 
-		// Remove edge2 from the edge list
-		auto it = std::find(edge_list.begin(), edge_list.end(), edge2);
-		if (it != edge_list.end()) {
-			edge_list.erase(it);
-		}
+		// Configure the faces.
+		FaceDCEL<type, dim>* f1 = new FaceDCEL<type, dim>();
+		FaceDCEL<type, dim>* f2 = new FaceDCEL<type, dim>();
 
-		// this is wrong, because it should actually make the inner edges clockwise with the twins.
-		// Now we need to reconstruct the inner edges of face1
-		face1->inner.clear(); // Clear the inner edges, if any
-		EdgeDCEL<type, dim>* innerEdge = edge1->twin; // Start from edge1'twin
+		f1->outer = edge_list[0];
 
-		/*
-		do {
-			face1->inner.push_back(innerEdge);
-			innerEdge = innerEdge->next; // Move to the next edge
-		} while (innerEdge != edge1->twin); // Continue until we loop back to edge1
-		*/
+		// f2 is the unbounded face which wraps f1. So f1 is a hole in f2. 
+		// f1 has counter-clockwise edges, while f2 has clockwise edges.
 
-		// Finally, add face1 to the face list if it was not already there
-		if (std::find(face_list.begin(), face_list.end(), face1) == face_list.end()) {
-			face_list.push_back(face1);
-		}
+		f2->inner.push_back(edge_list[1]);
 
-		// Return true to indicate success
-		return true;
-	}
+		face_list.push_back(f1);
+		face_list.push_back(f2);
 
-	template <class type, size_t dim>
-	bool PolygonDCEL<type, dim>::join(VertexDCEL<type, dim>* _v1, VertexDCEL<type, dim>* _v2) {
-		// Check if the vertices belong to the same face
-		EdgeDCEL<type, dim>* edge1 = _v1->incident_edge;
-		EdgeDCEL<type, dim>* edge2 = _v2->incident_edge;
-
-		// Find the face for both edges
-		if (edge1->incident_face != edge2->incident_face) {
-			std::cerr << "Vertices do not belong to the same face; cannot join.\n";
-			return false; // Vertices must belong to the same face
-		}
-
-		// Check if the edges meet at a common vertex
-		if (edge1->origin == _v2 || edge2->origin == _v1)
+		f1->outer->incident_face = f1;
+		EdgeDCEL<type, dim>* edge = f1->outer->next;
+		while (edge != f1->outer)
 		{
-			std::cerr << "Vertices are already adjacent; cannot join.\n";
-			return false; // Vertices are already adjacent, no join needed
+			edge->incident_face = f1;
+			edge = edge->next;
 		}
 
-		// Perform the join operation
-		// Assuming we will keep _v1 and remove _v2
-		EdgeDCEL<type, dim>* curr_edge = edge2;
-		do {
-			curr_edge->origin = _v1; // Change the origin to _v1
-			curr_edge = curr_edge->next; // Move to the next edge
-		} while (curr_edge != edge2); // Loop until we've updated all edges in the face
-
-		// Update the incident edge for _v1
-		_v1->incident_edge = edge1; // Retain the incident edge of _v1
-
-		// Remove _v2 from the vertex list and clean up
-		auto it = std::find(vertex_list.begin(), vertex_list.end(), _v2);
-		if (it != vertex_list.end()) {
-			vertex_list.erase(it); // Remove _v2 from the vertex list
+		// f2->inner has halfedges connect in clockwise order
+		f2->inner[0]->incident_face = f2;
+		edge = f2->inner[0]->next;
+		while (edge != f2->inner[0])
+		{
+			edge->incident_face = f2;
+			edge = edge->next;
 		}
 
-		// Clean up edge2 to prevent dangling pointers
-		curr_edge = edge2;
-		while (curr_edge) {
-			auto next_edge = curr_edge->next; // Store the next edge
-			delete curr_edge; // Free the memory for the edge
-			curr_edge = next_edge;
-			if (curr_edge == edge2) break; // Stop if we loop back to edge2
-		}
-
-		// Return true to indicate the join was successful
 		return true;
 	}
 
@@ -861,7 +806,8 @@ namespace jmk {
 	inline VertexDCEL<type, dim>* PolygonDCEL<type, dim>::getVertex(VectorNf& _point)
 	{
 		// Find a vertex with the given coordinates (point).
-		for (size_t i = 0; i < vertex_list.size(); i++) {
+		for (size_t i = 0; i < vertex_list.size(); i++) 
+		{
 			if (_point == vertex_list[i]->point)
 				return vertex_list[i]; // Return the matching vertex.
 		}

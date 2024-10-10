@@ -399,14 +399,38 @@ int main()
 
 	// Create a vector of points for the polygon (let's assume a simple square)
 	std::vector<Vector<float, 2>> splitPolyPoints = {
+		/*
+		Vector<float, 2>{0.0f, 0.0f},   // Vertex 1
+		Vector<float, 2>{1.0f, 0.0f},   // Vertex 2
+		Vector<float, 2>{1.5f, 1.0f},   // Vertex 3
+		Vector<float, 2>{1.0f, 2.0f},   // Vertex 4
+		Vector<float, 2>{0.0f, 2.0f},   // Vertex 5
+		Vector<float, 2>{-0.5f, 1.0f}   // Vertex 6
+			*/
 
+		/*
+		Vector<float, 2>{0.0f, 0.0f},   // Vertex 1
+		Vector<float, 2>{1.0f, 0.0f},   // Vertex 2
+		Vector<float, 2>{1.5f, 1.0f},   // Vertex 3
+		Vector<float, 2>{0.5f, 2.0f},   // Vertex 4
+		Vector<float, 2>{-0.5f, 1.0f}   // Vertex 5
+		*/
+		
+
+		
+		//triangle
 		Vector<float, 2>{0.0f, 0.0f},  // First vertex
 		Vector<float, 2>{1.0f, 0.0f},  // Second vertex
 		Vector<float, 2>{0.5f, 1.0f}   // Third vertex (midpoint to form a triangle)
-		/*Vector<float, 2>{0.0f, 0.0f},
+		
+
+		
+		/*
+		Vector<float, 2>{0.0f, 0.0f},
 		Vector<float, 2>{1.0f, 0.0f},
 		Vector<float, 2>{1.0f, 1.0f},
-		Vector<float, 2>{0.0f, 1.0f}*/
+		Vector<float, 2>{0.0f, 1.0f}
+		*/
 	};
 
 		// Create the polygon
@@ -423,6 +447,7 @@ int main()
 	VertexDCEL<float, 2>* v1 = splitOrigins[0];  // Point (0.0, 0.0)
 	VertexDCEL<float, 2>* v3 = splitOrigins[2];  // Point (1.0, 1.0)
 
+	
 	bool success = splitPolygon.split(v1, v3);
 
 	if (success) {
@@ -432,11 +457,13 @@ int main()
 		std::cout << "Polygon split failed.\n";
 		return 0;
 	}
+	
 
 	// Print the polygon after the split
 	std::cout << "Polygon After Split: \n";
 	splitPolygon.printPolygon();
 
+	
 	std::cout << "Join the Polygon: \n";
 
 	std::vector<EdgeDCEL<float, 2>*> edgeOrigins = splitPolygon.getEdgeList();	
@@ -469,19 +496,27 @@ int main()
 		return -1;  // Exit if we cannot find the edges
 	}
 
+	
 
 	bool joinSuccess = splitPolygon.join(diagonalEdge1, diagonalEdge2);
 
+	//splitPolygon.clear();
+
+	// Create the polygon
+	//PolygonDCEL<float, 2> newPolygon(splitPolyPoints);
+
+	
 	if (joinSuccess) {
 		std::cout << "Edges joined successfully.\n";
 	}
 	else {
 		std::cout << "Failed to join edges.\n";
 	}
-
+	
 	// Print polygon after joining
 	std::cout << "Polygon After Join: \n";
 	splitPolygon.printPolygon();
+	//newPolygon.printPolygon();
 
 	return 0;
 }
