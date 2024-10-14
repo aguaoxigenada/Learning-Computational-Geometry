@@ -50,23 +50,27 @@ VERTEX_CATEGORY categorize_vertex(Vertex2dDCEL* vertex)
 	}
 }
 
-struct Vertex2dDCELWrapper {
+struct Vertex2dDCELWrapper 
+{
 	Vertex2dDCEL* vert;
 	VERTEX_CATEGORY category;
 };
 
-struct Edge2dDCELWrapper {
+struct Edge2dDCELWrapper 
+{
 	Edge2dDCEL* edge;
 	Vertex2dDCELWrapper helper;
 
-	Edge2dDCELWrapper(Edge2dDCEL* _edge, Vertex2dDCELWrapper& _helper) {
+	Edge2dDCELWrapper(Edge2dDCEL* _edge, Vertex2dDCELWrapper& _helper) 
+	{
 		edge = _edge;
 		helper = _helper;
 		orgin = edge->origin->point;
 		dest = edge->twin->origin->point;
 	}
 
-	const float computeX(const Point2d& point) const {
+	const float computeX(const Point2d& point) const
+	{
 		float _deno = (dest[Y] - orgin[Y]);
 		float _x = point[X];
 		if (_deno != 0) {
@@ -75,12 +79,14 @@ struct Edge2dDCELWrapper {
 		return _x;
 	}
 
-private:
-	Point2d orgin, dest;
+	private:
+		Point2d orgin, dest;
 };
 
-struct Vertex2DWrapperSort {
-	bool operator()(Vertex2dDCELWrapper& current, Vertex2dDCELWrapper& ref) {
+struct Vertex2DWrapperSort 
+{
+	bool operator()(Vertex2dDCELWrapper& current, Vertex2dDCELWrapper& ref)
+	{
 		auto cur_pnt = current.vert->point;
 		auto ref_pnt = ref.vert->point;
 		if ((cur_pnt[Y] > ref_pnt[Y])
@@ -92,7 +98,8 @@ struct Vertex2DWrapperSort {
 	}
 };
 
-struct SweepLineComparator {
+struct SweepLineComparator 
+{
 	Point2d* point;
 	SweepLineComparator(Point2d* _point) {
 		point = _point;

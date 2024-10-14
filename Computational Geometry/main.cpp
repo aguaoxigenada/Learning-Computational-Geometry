@@ -417,20 +417,20 @@ int main()
 		*/
 		
 
-		
+		/*
 		//triangle
 		Vector<float, 2>{0.0f, 0.0f},  // First vertex
 		Vector<float, 2>{1.0f, 0.0f},  // Second vertex
 		Vector<float, 2>{0.5f, 1.0f}   // Third vertex (midpoint to form a triangle)
-		
+		*/
 
 		
-		/*
+		
 		Vector<float, 2>{0.0f, 0.0f},
 		Vector<float, 2>{1.0f, 0.0f},
 		Vector<float, 2>{1.0f, 1.0f},
 		Vector<float, 2>{0.0f, 1.0f}
-		*/
+		
 	};
 
 		// Create the polygon
@@ -517,6 +517,46 @@ int main()
 	std::cout << "Polygon After Join: \n";
 	splitPolygon.printPolygon();
 	//newPolygon.printPolygon();
+
+
+	cout << "\n-----Monotone Partition----\n";
+
+	  // Define the polygon by creating vertices
+	std::vector<Point2d> vertices = 
+	{
+		Point2d(0, 0),
+		Point2d(4, 0),
+		Point2d(6, 2),
+		Point2d(4, 4),
+		Point2d(2, 4),
+		Point2d(0, 2)
+	};
+
+	// Create a polygon object
+	Polygon2d* monPolygon = new Polygon2d(vertices);
+
+	// Store the resulting monotone polygons
+	std::vector<Polygon2d*> monotone_polygons;
+
+	// Get the monotone polygons using the provided function
+    get_monotone_polygons(monPolygon, monotone_polygons);
+
+	// Output the resulting monotone polygons
+	std::cout << "Monotone polygons: " << std::endl;
+	for (const auto& mono_poly : monotone_polygons) {
+		std::cout << "Polygon vertices: ";
+		for (const auto& vertex : mono_poly->getVertexList()) {
+			std::cout << "(" << vertex->point[X] << ", " << vertex->point[Y] << ") ";
+		}
+		std::cout << std::endl;
+	}
+
+	// Clean up memory
+	delete monPolygon;
+	for (auto mono_poly : monotone_polygons) {
+		delete mono_poly;
+	}
+
 
 	return 0;
 }
