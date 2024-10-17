@@ -201,39 +201,52 @@ static void handle_regular_vertices(Vertex2dDCELWrapper& vertex
 
 	Edge2dDCELWrapper* edge = new Edge2dDCELWrapper(vertex.vert->incident_edge, vertex);
 
-	if (prev_y >= current_y && current_y >= next_y) {
-		auto edge_wrapper = edge_mapper[vertex.vert->incident_edge->prev];
-		if (edge_wrapper->helper.category == VERTEX_CATEGORY::MERGE) {
-			poly->split(vertex.vert, edge_wrapper->helper.vert);
-		}
+	if(edge_mapper.find(vertex.vert->incident_edge->prev) == edge_mapper.end())
+	{
+		//edge_mapper.insert(std::pair<Edge2dDCEL*, Edge2dDCELWrapper*>(vertex.vert->incident_edge,edge));
+		edge_mapper.insert(std::make_pair(vertex.vert->incident_edge, edge));
 
-		auto found = sweep_line.find(edge_wrapper);
-		if (found != sweep_line.end())
-			sweep_line.erase(found);
-
-		sweep_line.insert(edge);
-		edge_mapper.insert(std::pair<Edge2dDCEL*, Edge2dDCELWrapper*>(vertex.vert->incident_edge,
-			edge));
 	}
-	else {
-		auto found = sweep_line.lower_bound(edge);
-		Edge2dDCELWrapper* ej;
-		if (found == sweep_line.end()) {
-			if (sweep_line.size() > 0) {
-				ej = *(--found);
+	else
+	{
+		if (prev_y >= current_y && current_y >= next_y)
+		{
+			auto edge_wrapper = edge_mapper[vertex.vert->incident_edge->prev];
+			if (edge_wrapper->helper.category == VERTEX_CATEGORY::MERGE)
+			{
+				poly->split(vertex.vert, edge_wrapper->helper.vert);
+			}
+
+			auto found = sweep_line.find(edge_wrapper);
+			if (found != sweep_line.end())
+				sweep_line.erase(found);
+
+			sweep_line.insert(edge);
+			edge_mapper.insert(std::pair<Edge2dDCEL*, Edge2dDCELWrapper*>(vertex.vert->incident_edge,
+				edge));
+		}
+		else
+		{
+			auto found = sweep_line.lower_bound(edge);
+			Edge2dDCELWrapper* ej;
+			if (found == sweep_line.end()) {
+				if (sweep_line.size() > 0) {
+					ej = *(--found);
+					if (ej->helper.category == VERTEX_CATEGORY::MERGE)
+						poly->split(vertex.vert, ej->helper.vert);
+					ej->helper = vertex;
+				}
+			}
+			else if (found != sweep_line.begin())
+			{
+				ej = *(found--);
 				if (ej->helper.category == VERTEX_CATEGORY::MERGE)
 					poly->split(vertex.vert, ej->helper.vert);
 				ej->helper = vertex;
 			}
 		}
-		else if (found != sweep_line.begin())
-		{
-			ej = *(found--);
-			if (ej->helper.category == VERTEX_CATEGORY::MERGE)
-				poly->split(vertex.vert, ej->helper.vert);
-			ej->helper = vertex;
-		}
 	}
+	
 }
 
 

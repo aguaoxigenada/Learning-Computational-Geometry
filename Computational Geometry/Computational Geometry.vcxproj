@@ -42,6 +42,7 @@
     <ClCompile Include="Core\Primitives\Line.cpp" />
     <ClCompile Include="Core\Primitives\Point.cpp" />
     <ClCompile Include="Core\Primitives\Polygon.cpp" />
+    <ClCompile Include="MonotonePartition.cpp" />
     <ClCompile Include="Triangulation.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

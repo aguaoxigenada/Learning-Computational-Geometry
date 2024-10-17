@@ -524,17 +524,27 @@ int main()
 	  // Define the polygon by creating vertices
 	std::vector<Point2d> vertices = 
 	{
+		/*
 		Point2d(0, 0),
 		Point2d(4, 0),
 		Point2d(6, 2),
 		Point2d(4, 4),
 		Point2d(2, 4),
 		Point2d(0, 2)
+		*/
+
+		Point2d(0, 0),    // End vertex
+		Point2d(2, 1),    // Split vertex
+		Point2d(4, 0),    // End vertex
+		Point2d(6, 2),    // regular vertex
+		Point2d(4, 4),    // Start vertex
+		Point2d(1, 2),    // Merge vertex
+		Point2d(0, 3)     // Start vertex
 	};
 
 	// Create a polygon object
 	Polygon2d* monPolygon = new Polygon2d(vertices);
-
+	
 	// Store the resulting monotone polygons
 	std::vector<Polygon2d*> monotone_polygons;
 
