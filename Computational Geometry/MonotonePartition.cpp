@@ -201,14 +201,14 @@ static void handle_regular_vertices(Vertex2dDCELWrapper& vertex
 
 	Edge2dDCELWrapper* edge = new Edge2dDCELWrapper(vertex.vert->incident_edge, vertex);
 
-	if(edge_mapper.find(vertex.vert->incident_edge->prev) == edge_mapper.end())
+	/*if(edge_mapper.find(vertex.vert->incident_edge->prev) == edge_mapper.end())
 	{
 		//edge_mapper.insert(std::pair<Edge2dDCEL*, Edge2dDCELWrapper*>(vertex.vert->incident_edge,edge));
 		edge_mapper.insert(std::make_pair(vertex.vert->incident_edge, edge));
 
 	}
 	else
-	{
+	{*/
 		if (prev_y >= current_y && current_y >= next_y)
 		{
 			auto edge_wrapper = edge_mapper[vertex.vert->incident_edge->prev];
@@ -245,7 +245,7 @@ static void handle_regular_vertices(Vertex2dDCELWrapper& vertex
 				ej->helper = vertex;
 			}
 		}
-	}
+	//}
 	
 }
 
