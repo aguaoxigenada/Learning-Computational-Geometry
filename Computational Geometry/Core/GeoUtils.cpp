@@ -8,11 +8,15 @@ using namespace jmk;
 
 double jmk::areaTriangle2d(const Point2d& a, const Point2d& b, const Point2d& c)
 {
+	// Calculate vector from a to b and from a to c
 	auto AB = b - a;
 	auto AC = c - a;
+
+	// Compute the cross product of vectors AB and AC
+	// This cross product gives the area of the parallelogram formed by AB and AC in 2D
+	// Dividing by 2 gives the signed area of the triangle a-b-c
 	auto result = crossProduct2D(AB, AC);
 	return result / 2;
-
 }
 
 double jmk::areaTriangle3d(const Point3d& a, const Point3d& b, const Point3d& c)
@@ -32,33 +36,52 @@ double jmk::areaTriangle3d(const Point3d& a, const Point3d& b, const Point3d& c)
 }
 
 
-int jmk::orientation2d(const Point2d& a, const Point2d& b, const Point2d& c)
+
+int jmk::orientation2d(const Point2d & a, const Point2d & b, const Point2d & c)
 {
+	// Compute the signed area of the triangle formed by points a, b, and c
 	auto area = areaTriangle2d(a, b, c);
 
+	// If area is very close to zero (within TOLERANCE), set it to zero
+	// This avoids issues with floating-point precision errors in collinear cases
 	if (area > 0 && area < TOLERANCE)
 		area = 0;
 
-	if (area < 0 && area > TOLERANCE)
+	if (area < 0 && area > -TOLERANCE)
 		area = 0;
 
+	// Create vectors from point a to points b and c
 	Vector2f ab = b - a;
 	Vector2f ac = c - a;
 
+	// If area is positive, c is to the left of line a -> b (counterclockwise orientation)
 	if (area > 0.0)
 		return LEFT;
+
+	// If area is negative, c is to the right of line a -> b (clockwise orientation)
 	if (area < 0.0)
 		return RIGHT;
+
+	// If area is zero, points are collinear; check relative positions
+	// If c is behind a (in the opposite direction of vector ab), return BEHIND
 	if ((ab[X] * ac[X] < 0.0) || (ab[Y] * ac[Y] < 0.0))
 		return BEHIND;
+
+	// If c is beyond b, return BEYOND
 	if (ab.magnitude() < ac.magnitude())
 		return BEYOND;
+
+	// Special cases for collinear points:
+	// If c is the same as a, return ORIGIN
 	if (a == c)
 		return ORIGIN;
+
+	// If c is the same as b, return DESTINATION
 	if (b == c)
 		return DESTINATION;
-	return BETWEEN;
 
+	// If none of the above conditions are met, c is between a and b
+	return BETWEEN;
 }
 
 
