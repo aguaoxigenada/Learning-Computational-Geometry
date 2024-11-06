@@ -133,27 +133,49 @@ static void handle_end_vertices(Vertex2dDCELWrapper& vertex
 	sweep_line.erase(found);
 }
 
-static void handle_split_vertices(Vertex2dDCELWrapper& vertex
-	, std::set<Edge2dDCELWrapper*, SweepLineComparator>& sweep_line
-	, std::map<Edge2dDCEL*, Edge2dDCELWrapper*>& edge_mapper, Polygon2d* poly)
+// Function to handle "split" vertices in polygon processing
+static void handle_split_vertices(Vertex2dDCELWrapper& vertex,
+	std::set<Edge2dDCELWrapper*, SweepLineComparator>& sweep_line,
+	std::map<Edge2dDCEL*, Edge2dDCELWrapper*>& edge_mapper,	Polygon2d* poly)
 {
+	// Create an edge wrapper for the current vertex's incident edge
 	Edge2dDCELWrapper* edge = new Edge2dDCELWrapper(vertex.vert->incident_edge, vertex);
+
+	// Locate where this new edge would be positioned in the sweep line using lower_bound
 	auto found = sweep_line.lower_bound(edge);
 	Edge2dDCELWrapper* ej;
+
+	// If lower_bound points to the end of the sweep line (meaning no greater edge exists)
 	if (found == sweep_line.end()) {
+		// Check if the sweep line has any elements to process
 		if (sweep_line.size() > 0) {
+			// Move iterator to the last element in sweep line
 			ej = *(--found);
+
+			// Perform a polygon split between the current vertex and the helper vertex of the last edge
 			poly->split(vertex.vert, ej->helper.vert);
+
+			// Update the helper of this last edge to the current vertex
 			ej->helper = vertex;
 		}
 	}
+	// If found is not at the beginning, process the previous edge in the sweep line
 	else if (found != sweep_line.begin())
 	{
+		// Move 'found' to the previous edge in the sweep line
 		ej = *(--found);
+
+		// Perform a polygon split between the current vertex and the helper vertex of this edge
 		poly->split(vertex.vert, ej->helper.vert);
+
+		// Update the helper of this edge to the current vertex
 		ej->helper = vertex;
 	}
+
+	// Insert the newly created edge into the sweep line
 	sweep_line.insert(edge);
+
+	// Update the edge_mapper to associate this edge with its corresponding DCEL edge
 	edge_mapper.insert(std::pair<Edge2dDCEL*, Edge2dDCELWrapper*>(vertex.vert->incident_edge, edge));
 }
 
@@ -164,120 +186,133 @@ static void handle_merge_vertices(Vertex2dDCELWrapper& vertex,
 	std::map<Edge2dDCEL*, Edge2dDCELWrapper*>& edge_mapper,
 	Polygon2d* poly)
 {
-	// Retrieve the edge preceding the current vertex s incident edge from the edge_mapper
+	// Retrieve the edge wrapping the previous edge of the current vertex
 	auto edge_wrapper = edge_mapper[vertex.vert->incident_edge->prev];
 
-	// Check if the helper vertex of this previous edge is a merge vertex.
-	// If so, split the polygon at this point using the current vertex and helper.
+	// Check if the helper of this previous edge is a merge vertex
 	if (edge_wrapper->helper.category == VERTEX_CATEGORY::MERGE) {
+		// If so, perform a polygon split at the current vertex and helper vertex
 		poly->split(vertex.vert, edge_wrapper->helper.vert);
 	}
 
-	// Locate the edge_wrapper in the sweep line data structure.
+	// Attempt to locate 'edge_wrapper' in the sweep line set
 	auto found = sweep_line.find(edge_wrapper);
 
-	// If the edge_wrapper is found in the sweep line, remove it.
+	// If 'edge_wrapper' was found in the sweep line
 	if (found != sweep_line.end())
+		// Remove 'edge_wrapper' from the sweep line
 		sweep_line.erase(found);
 
-	// Create a new edge wrapper for the current vertex's incident edge.
+	// Create a new edge wrapper for the current vertex's incident edge
 	Edge2dDCELWrapper* edge = new Edge2dDCELWrapper(vertex.vert->incident_edge, vertex);
 
-	// Find the appropriate position in the sweep line where this new edge should be inserted.
-	// This positions the iterator `found` to the point where `edge` would go.
+	// Find the appropriate position of 'edge' in the sweep line based on x-order
 	found = sweep_line.lower_bound(edge);
 
 	Edge2dDCELWrapper* ej;
 
-	// If the position `found` is at the end of the sweep line, it means there is no edge
-	// in the sweep line that lies after the current edge.
+	// If 'found' reaches the end of the sweep line (meaning no elements were greater),
+	// we will need to check the last element in the sweep line.
 	if (found == sweep_line.end()) {
-		// Ensure the sweep line is not empty before proceeding.
+		// Confirm that there is at least one element in the sweep line
 		if (sweep_line.size() > 0) {
-			// Move back one element to the last edge in the sweep line.
+			// Move 'found' to point to the last element in the sweep line
 			ej = *(--found);
 
-			// If the helper vertex of this last edge is a merge vertex, split the polygon
-			// using the current vertex and this helper.
+			// Check if the helper of this last edge is a merge vertex
 			if (ej->helper.category == VERTEX_CATEGORY::MERGE)
+				// Perform a split at the current vertex and helper vertex if true
 				poly->split(vertex.vert, ej->helper.vert);
 
-			// Update the helper for the last edge to the current vertex.
+			// Update the helper of this last edge to the current vertex
 			ej->helper = vertex;
 		}
 	}
-	// Otherwise, if `found` is not at the beginning of the sweep line, check the previous edge.
+	// If 'found' is not the first element in the sweep line (ensures we can check a previous edge)
 	else if (found != sweep_line.begin()) {
-		// Move back one element to get the edge before the insertion point.
+		// Move 'found' back to the previous element in the sweep line
 		ej = *(--found);
 
-		// If the helper of this edge is a merge vertex, split the polygon
-		// using the current vertex and this helper.
+		// If the previous edge's helper is a merge vertex
 		if (ej->helper.category == VERTEX_CATEGORY::MERGE)
+			// Perform a split at the current vertex and helper vertex
 			poly->split(vertex.vert, ej->helper.vert);
 
-		// Update the helper of this edge to the current vertex.
+		// Update the helper of this previous edge to the current vertex
 		ej->helper = vertex;
 	}
 }
 
-static void handle_regular_vertices(Vertex2dDCELWrapper& vertex
-	, std::set<Edge2dDCELWrapper*, SweepLineComparator>& sweep_line
-	, std::map<Edge2dDCEL*, Edge2dDCELWrapper*>& edge_mapper, Polygon2d* poly)
+// Function to handle regular (non-special) vertices in polygon processing
+static void handle_regular_vertices(Vertex2dDCELWrapper& vertex,
+	std::set<Edge2dDCELWrapper*, SweepLineComparator>& sweep_line,
+	std::map<Edge2dDCEL*, Edge2dDCELWrapper*>& edge_mapper,
+	Polygon2d* poly)
 {
-	// Check whether the interior of the polygon lies right to vertex point
+	// Determine if the polygon interior is to the right of the vertex
 	auto prev_y = vertex.vert->incident_edge->prev->origin->point[Y];
 	auto current_y = vertex.vert->point[Y];
 	auto next_y = vertex.vert->incident_edge->next->origin->point[Y];
 
+	// Create an edge wrapper for the current vertex's incident edge
 	Edge2dDCELWrapper* edge = new Edge2dDCELWrapper(vertex.vert->incident_edge, vertex);
 
-	/*if(edge_mapper.find(vertex.vert->incident_edge->prev) == edge_mapper.end())
+	// Check if the vertex is a 'regular left vertex' (i.e., polygon interior is on the right)
+	if (prev_y >= current_y && current_y >= next_y)
 	{
-		//edge_mapper.insert(std::pair<Edge2dDCEL*, Edge2dDCELWrapper*>(vertex.vert->incident_edge,edge));
-		edge_mapper.insert(std::make_pair(vertex.vert->incident_edge, edge));
+		// Retrieve the edge wrapper for the previous edge of the current vertex
+		auto edge_wrapper = edge_mapper[vertex.vert->incident_edge->prev];
 
+		// If the helper of this previous edge is a 'MERGE' vertex, split the polygon
+		if (edge_wrapper->helper.category == VERTEX_CATEGORY::MERGE)
+		{
+			poly->split(vertex.vert, edge_wrapper->helper.vert);
+		}
+
+		// Locate and remove 'edge_wrapper' from the sweep line if it exists
+		auto found = sweep_line.find(edge_wrapper);
+		if (found != sweep_line.end())
+			sweep_line.erase(found);
+
+		// Insert the new edge into the sweep line and update edge_mapper with this edge
+		sweep_line.insert(edge);
+		edge_mapper.insert(std::pair<Edge2dDCEL*, Edge2dDCELWrapper*>(vertex.vert->incident_edge, edge));
 	}
 	else
-	{*/
-		if (prev_y >= current_y && current_y >= next_y)
-		{
-			auto edge_wrapper = edge_mapper[vertex.vert->incident_edge->prev];
-			if (edge_wrapper->helper.category == VERTEX_CATEGORY::MERGE)
-			{
-				poly->split(vertex.vert, edge_wrapper->helper.vert);
-			}
+	{
+		// For vertices where the polygon interior is to the left
+		auto found = sweep_line.lower_bound(edge);
+		Edge2dDCELWrapper* ej;
 
-			auto found = sweep_line.find(edge_wrapper);
-			if (found != sweep_line.end())
-				sweep_line.erase(found);
+		// If found is at the end of sweep_line, check the last element in sweep_line
+		if (found == sweep_line.end()) {
+			// Ensure there are elements in sweep_line to check
+			if (sweep_line.size() > 0) {
+				// Move to the last element in sweep_line
+				ej = *(--found);
 
-			sweep_line.insert(edge);
-			edge_mapper.insert(std::pair<Edge2dDCEL*, Edge2dDCELWrapper*>(vertex.vert->incident_edge,
-				edge));
-		}
-		else
-		{
-			auto found = sweep_line.lower_bound(edge);
-			Edge2dDCELWrapper* ej;
-			if (found == sweep_line.end()) {
-				if (sweep_line.size() > 0) {
-					ej = *(--found);
-					if (ej->helper.category == VERTEX_CATEGORY::MERGE)
-						poly->split(vertex.vert, ej->helper.vert);
-					ej->helper = vertex;
-				}
-			}
-			else if (found != sweep_line.begin())
-			{
-				ej = *(found--);
+				// If the last edge's helper is a 'MERGE' vertex, split the polygon
 				if (ej->helper.category == VERTEX_CATEGORY::MERGE)
 					poly->split(vertex.vert, ej->helper.vert);
+
+				// Update the helper of the last edge to the current vertex
 				ej->helper = vertex;
 			}
 		}
-	//}
-	
+		// If found is not the beginning of sweep_line, check the previous edge
+		else if (found != sweep_line.begin())
+		{
+			// Move 'found' to the previous edge in the sweep line
+			ej = *(found--);
+
+			// If this previous edge's helper is a 'MERGE' vertex, split the polygon
+			if (ej->helper.category == VERTEX_CATEGORY::MERGE)
+				poly->split(vertex.vert, ej->helper.vert);
+
+			// Update the helper of this previous edge to the current vertex
+			ej->helper = vertex;
+		}
+	}
 }
 
 

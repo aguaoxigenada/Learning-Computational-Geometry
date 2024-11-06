@@ -20,7 +20,7 @@ D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\Pol
   	see reference to class template instantiation 'jmk::PolygonDCEL<float,2>' being compiled
   	D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Primitives\PolygonDCEL.h(439,77):
   	while compiling class template member function 'jmk::PolygonDCEL<float,2>::PolygonDCEL(std::vector<jmk::Vector<float,2>,std::allocator<jmk::Vector<float,2>>> &)'
-  		D:\Studies\C++\Computational Geometry\Computational Geometry\MonotonePartition.cpp(347,24):
+  		D:\Studies\C++\Computational Geometry\Computational Geometry\MonotonePartition.cpp(382,24):
   		see the first reference to 'jmk::PolygonDCEL<float,2>::PolygonDCEL' in 'jmk::get_monotone_polygons'
   
 D:\Studies\C++\Computational Geometry\Computational Geometry\Core\Base\Vector.h(424,16): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
